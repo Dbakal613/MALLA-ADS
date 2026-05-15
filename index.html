@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malla Curricular — Administración de Servicios</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── Topbar ──────────────────────────────────────────────────────────── -->
+  <div class="topbar">
+    <div class="logo">
+      <svg viewBox="0 0 20 20">
+        <path d="M3 4a1 1 0 011-1h12v2H3V4zm0 5h14v2H3V9zm0 5h14v2H3v-2z"/>
+      </svg>
+    </div>
+    <div class="topbar-title">
+      Malla Curricular <span>— Administración de Servicios</span>
+    </div>
+    <span class="topbar-badge" id="topbar-badge">Sin configurar</span>
+    <button class="btn" data-action="open-config">⚙ Mi semestre</button>
+    <button class="btn" data-action="open-onboarding">? Instructivo</button>
+    <button class="btn" data-action="reset-all">↩ Reiniciar</button>
+  </div>
+
+  <!-- ── Legend bar ─────────────────────────────────────────────────────── -->
+  <div class="infobar">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>Aprobado</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>Reprobado</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--orange)"></span>No tomado</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#D97706"></span>Recomendado</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--border-2)"></span>Bloqueado</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span>Actual</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--amber)"></span>Próximo</div>
+    <span class="infobar-hint">Clic para cambiar estado · Arrastra para mover</span>
+  </div>
+
+  <!-- ── Main ───────────────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <!-- Grid -->
+    <div class="grid-wrapper">
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <!-- Side panel -->
+    <div class="side-panel">
+      <div class="side-panel-header">
+        <h3>Planificación</h3>
+        <p>Marca tus ramos y el sistema recalcula tu camino óptimo.</p>
+      </div>
+      <div class="side-panel-body" id="panel"></div>
+    </div>
+
+  </div>
+
+  <!-- ── Summary bar ────────────────────────────────────────────────────── -->
+  <div class="sumbar" id="sumbar"></div>
+
+</div>
+
+<!-- ── Context menu (shown on course card click) ──────────────────────────── -->
+<div class="context-menu" id="context-menu"></div>
+
+<!-- ── Toast notification ─────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── Onboarding modal ───────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="onboarding-modal">
+  <div class="modal" style="max-width:560px;max-height:82vh;overflow-y:auto;padding:28px 32px">
+    <h2 style="margin-bottom:4px">Bienvenido a tu Malla Curricular</h2>
+    <p class="modal-sub" style="margin-bottom:20px">Sigue estos pasos para sacarle el máximo partido a la herramienta.</p>
+
+    <div style="display:flex;flex-direction:column;gap:18px;font-size:12px;line-height:1.6;color:var(--text)">
+
+      <div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">① Configura tu semestre actual</div>
+        <p style="color:var(--text-2)">Haz clic en <strong>⚙ Mi semestre</strong> (esquina superior derecha) y selecciona el año y semestre en que te encuentras actualmente. Esto permite que el sistema calcule una proyección personalizada para ti.</p>
+      </div>
+
+      <div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">② Marca el estado de cada ramo</div>
+        <p style="color:var(--text-2);margin-bottom:8px">Haz clic en cualquier tarjeta de ramo para abrir el menú de opciones y asignarle su estado real:</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 12px">
+          <div><span style="color:var(--green);font-weight:600">✓ Aprobado</span> — lo aprobaste normalmente</div>
+          <div><span style="color:var(--blue);font-weight:600">📖 Cursando</span> — lo estás tomando ahora</div>
+          <div><span style="color:#4338CA;font-weight:600">⚡ Adelantado</span> — lo aprobaste antes de su semestre</div>
+          <div><span style="color:#166534;font-weight:600">⊘ Eximido</span> — eximido por prueba (solo Inglés)</div>
+          <div><span style="color:#0891B2;font-weight:600">⇌ Convalidado</span> — cursado en otra carrera</div>
+          <div><span style="color:var(--red);font-weight:600">✗ Reprobado</span> — no lograste aprobarlo</div>
+          <div><span style="color:var(--orange);font-weight:600">⏭ No tomado</span> — no lo tomaste cuando debías</div>
+        </div>
+        <p style="color:var(--text-2);margin-top:8px">Los ramos <strong>reprobados</strong> y <strong>no tomados</strong> bloquean a los ramos que los requieren como prerrequisito. Los <strong>convalidados</strong> no suman SCT al semestre pero sí al total de la carrera.</p>
+      </div>
+
+      <div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">③ Mueve ramos entre semestres (opcional)</div>
+        <p style="color:var(--text-2)">Arrastra cualquier tarjeta a otro semestre para reorganizar tu carga académica. El sistema verifica automáticamente que se cumplan los prerrequisitos, la oferta semestral (Mar–Jul / Ago–Dic) y el límite de SCT. Las tarjetas <span style="color:var(--blue);font-weight:600">azules punteadas</span> son la proyección del plan — también puedes arrastrarlas para ajustar los semestres futuros.</p>
+      </div>
+
+      <div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">④ Elige tu ruta de avance</div>
+        <p style="color:var(--text-2);margin-bottom:6px">Desde el panel lateral derecho selecciona el ritmo que mejor se adapta a ti:</p>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div><span style="font-weight:600">🚀 Rápida</span> — maximiza los SCT por semestre (hasta 33 SCT). Ideal si quieres terminar la carrera en el menor tiempo posible.</div>
+          <div><span style="font-weight:600">⚖️ Equilibrada</span> — distribuye los ramos de forma balanceada (~28 SCT). Un buen punto medio entre carga y tiempo.</div>
+          <div><span style="font-weight:600">🌿 Tranquila</span> — carga liviana (~26 SCT). Ideal si trabajas, tienes actividades extracurriculares o prefieres ir a un ritmo más cómodo.</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">⑤ Interpreta la proyección</div>
+        <p style="color:var(--text-2)">Una vez configurado tu semestre, el sistema muestra el camino proyectado en tarjetas azules punteadas. El panel lateral muestra los ramos recomendados para el próximo semestre y la proyección de semestres futuros. Todo se recalcula automáticamente cada vez que cambias el estado de un ramo.</p>
+      </div>
+
+      <div style="background:var(--surface-2);border-radius:8px;padding:12px 14px">
+        <div style="font-weight:600;margin-bottom:4px">Consejo</div>
+        <p style="color:var(--text-2);margin:0">Mientras más precisa sea tu configuración, más útil será la proyección. Tómate unos minutos para marcar todos tus ramos antes de revisar el plan: el resultado será mucho más fiel a tu situación real.</p>
+      </div>
+
+    </div>
+
+    <div style="margin-top:24px;display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn" data-action="show-onboarding-again" style="font-size:11px;color:var(--text-3)">Ver de nuevo</button>
+      <button class="btn btn--primary" data-action="close-onboarding" style="padding:10px 24px">Entendido, comenzar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Configuration modal ────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="config-modal">
+  <div class="modal">
+    <h2>Tu situación actual</h2>
+    <p class="modal-sub">Configura en qué punto estás para recibir recomendaciones personalizadas.</p>
+
+    <span class="config-label">¿En qué año de la carrera estás?</span>
+    <div class="config-row">
+      <button class="config-option" data-action="set-year" data-value="1">1° año</button>
+      <button class="config-option" data-action="set-year" data-value="2">2° año</button>
+      <button class="config-option" data-action="set-year" data-value="3">3° año</button>
+      <button class="config-option" data-action="set-year" data-value="4">4° año</button>
+      <button class="config-option" data-action="set-year" data-value="5">Práctica</button>
+    </div>
+
+    <span class="config-label">¿Primer o segundo semestre?</span>
+    <div class="config-row">
+      <button class="config-option" data-action="set-sem" data-value="1">1° sem (Mar–Jul)</button>
+      <button class="config-option" data-action="set-sem" data-value="2">2° sem (Ago–Dic)</button>
+    </div>
+
+    <span class="config-label">¿Qué ritmo prefieres?</span>
+    <div class="config-row">
+      <button class="config-option" data-action="set-config-strategy" data-strategy="rapida">🚀 Rápida</button>
+      <button class="config-option config-option--selected" data-action="set-config-strategy" data-strategy="equilibrada">⚖️ Equilibrada</button>
+      <button class="config-option" data-action="set-config-strategy" data-strategy="tranquila">🌿 Tranquila</button>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn"            data-action="close-config">Cancelar</button>
+      <button class="btn btn--primary" data-action="apply-config">Aplicar →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('error', e => {
+    const grid = document.getElementById('grid');
+    if (grid && !grid.innerHTML.trim()) grid.innerHTML = `<div style="padding:20px;color:red;font-family:monospace;font-size:13px;white-space:pre-wrap">❌ ERROR de carga:\n${e.message}\n${e.filename}:${e.lineno}</div>`;
+  });
+  window.addEventListener('unhandledrejection', e => {
+    const grid = document.getElementById('grid');
+    if (grid && !grid.innerHTML.trim()) grid.innerHTML = `<div style="padding:20px;color:red;font-family:monospace;font-size:13px;white-space:pre-wrap">❌ ERROR de módulo:\n${e.reason}</div>`;
+  });
+</script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
