@@ -171,10 +171,19 @@ function buildProjectionSection(plan, nextSem) {
       </div>`;
   }).join('');
 
+  const hiddenCount = futureSems.length > 4 ? futureSems.length - 4 : 0;
+  const moreHint = hiddenCount > 0
+    ? `<div class="empty-message" style="margin-bottom:6px">+${hiddenCount} semestre${hiddenCount > 1 ? 's' : ''} más en la descarga completa</div>`
+    : '';
+
   return `
     <div>
       <div class="section-title">Proyección futura</div>
       ${items}
+      ${moreHint}
+      <button class="btn" style="width:100%;margin-top:8px;padding:8px;text-align:center" data-action="download-projection">
+        ↓ Descargar proyección completa
+      </button>
     </div>`;
 }
 

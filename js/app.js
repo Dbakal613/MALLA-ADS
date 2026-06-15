@@ -12,7 +12,8 @@ import { getApproved, getFailed, getNotTaken, getCurrentlyStudying, getPostponed
          getCourseStatus, getCurrentSemesterNumber, getStrategy, getAllOverrides,
          getAllExtensions, toggleSemesterExtension,
          setCourseStatus, postponeCourse, resumeCourse, setStrategy } from './state.js';
-import { getBlocked, getCourseById, buildSemMap, safeCalculatePlan } from './planner.js';
+import { getBlocked, getCourseById, buildSemMap, safeCalculatePlan, getSemesterParity } from './planner.js';
+import { COURSES, TOTAL_CREDITS } from './data.js';
 import { buildGridHTML }   from './grid-html.js';
 import { buildPanelHTML, buildSumbarHTML } from './panel-html.js';
 import { openContextMenu, closeContextMenu } from './context-menu.js';
@@ -21,10 +22,13 @@ import { openConfig, closeConfig, applyConfig, handleConfigClick, updateTopbarBa
 import { showToast } from './toast.js';
 import { initOnboarding, closeOnboarding } from './onboarding.js';
 
-// ── Module-level semMap ───────────────────────────────────────────────────────
-// Kept here so the mark-semester handler can look up course IDs without relying
-// on a window global.
-let lastSemMap = {};
+// ── Module-level state snapshots ─────────────────────────────────────────────
+// Kept here so action handlers can reference the last-rendered values without
+// re-deriving them.
+let lastSemMap     = {};
+let lastPlan       = {};
+let lastCurrentSem = null;
+let lastStrategy   = 'equilibrada';
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
@@ -48,8 +52,11 @@ function _render() {
   const strategy   = getStrategy();
   const { recommended, plan } = safeCalculatePlan();
 
-  // Build semMap once per render; pass it down instead of using a global.
-  lastSemMap = buildSemMap();
+  // Snapshot state for action handlers.
+  lastSemMap     = buildSemMap();
+  lastPlan       = plan;
+  lastCurrentSem = currentSem;
+  lastStrategy   = strategy;
 
   document.getElementById('grid').innerHTML = buildGridHTML({
     approved, failed, notTaken, blocked, recommended, plan,
@@ -245,7 +252,108 @@ function handleClick(event) {
     case 'apply-config':
       applyConfig();
       break;
+
+    case 'download-projection':
+      downloadProjection();
+      break;
   }
+}
+
+// ── Download projection ───────────────────────────────────────────────────────
+
+function downloadProjection() {
+  const approved  = getApproved();
+  const studying  = getCurrentlyStudying();
+  const failed    = getFailed();
+  const notTaken  = getNotTaken();
+
+  const approvedSCT = COURSES.filter(c => approved.has(c.id)).reduce((sum, c) => sum + c.credits, 0);
+  const pct         = Math.round(approvedSCT / TOTAL_CREDITS * 100);
+  const delayed     = failed.size + notTaken.size;
+
+  const semLabel = (s) => getSemesterParity(s) === 'first' ? 'Mar–Jul' : 'Ago–Dic';
+  const strategyNames = { rapida: 'Rápida', equilibrada: 'Equilibrada', tranquila: 'Tranquila' };
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const sep  = '='.repeat(52);
+  const sep2 = '─'.repeat(52);
+
+  const lines = [
+    sep,
+    '  PROYECCIÓN MALLA CURRICULAR',
+    '  Administración de Servicios',
+    `  Generada el ${dateStr}`,
+    sep,
+    '',
+    'CONFIGURACIÓN',
+    `  Semestre actual : ${lastCurrentSem ?? '—'}`,
+    `  Ritmo de avance : ${strategyNames[lastStrategy] ?? lastStrategy}`,
+    '',
+    'PROGRESO',
+    `  SCT aprobados   : ${approvedSCT} / ${TOTAL_CREDITS} (${pct}%)`,
+    `  Ramos aprobados : ${approved.size}`,
+    `  Ramos atrasados : ${delayed} (${failed.size} reprobados · ${notTaken.size} no tomados)`,
+    '',
+    sep,
+    '  PLAN COMPLETO',
+    sep,
+    '',
+  ];
+
+  if (!lastCurrentSem) {
+    lines.push('  (No hay semestre configurado. Configura tu semestre actual primero.)');
+  } else {
+    const nextSem   = lastCurrentSem + 1;
+    const allSems   = Object.keys(lastPlan).map(Number).sort((a, b) => a - b);
+
+    // Next semester recommendation
+    const nextIds = lastPlan[nextSem] ?? [];
+    if (nextIds.length) {
+      const nextSCT = nextIds.reduce((sum, id) => sum + (getCourseById(id)?.credits ?? 0), 0);
+      lines.push(`▸ PRÓXIMO SEMESTRE ${nextSem} (${semLabel(nextSem)}) — ${nextSCT} SCT  ★`);
+      nextIds.forEach(id => {
+        const c = getCourseById(id);
+        if (c) lines.push(`    • ${c.name}  (${c.credits} SCT)`);
+      });
+      lines.push('');
+    }
+
+    // Future semesters
+    const futureSems = allSems.filter(s => s > nextSem);
+    futureSems.forEach(s => {
+      const ids      = lastPlan[s] ?? [];
+      const semSCT   = ids.reduce((sum, id) => sum + (getCourseById(id)?.credits ?? 0), 0);
+      lines.push(sep2);
+      lines.push(`  Semestre ${s}  ·  ${semLabel(s)}  ·  ${semSCT} SCT`);
+      lines.push(sep2);
+      ids.forEach(id => {
+        const c = getCourseById(id);
+        if (c) lines.push(`    • ${c.name}  (${c.credits} SCT)`);
+      });
+      lines.push('');
+    });
+
+    if (!nextIds.length && !futureSems.length) {
+      lines.push('  No hay semestres futuros proyectados.');
+    }
+  }
+
+  lines.push(sep);
+  lines.push('  Generado con Malla Curricular — ADS');
+  lines.push(sep);
+
+  const content = lines.join('\n');
+  const blob    = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url     = URL.createObjectURL(blob);
+  const a       = document.createElement('a');
+  a.href        = url;
+  a.download    = `proyeccion-malla-sem${lastCurrentSem ?? 'sin-config'}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  showToast('Proyección descargada.', 'success');
 }
 
 // ── Bootstrap ────────────────────────────────────────────────────────────────
