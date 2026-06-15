@@ -9,6 +9,20 @@ import { getFailed, getNotTaken } from './state.js';
 
 const semesterLabel = (s) => getSemesterParity(s) === 'first' ? 'Mar–Jul' : 'Ago–Dic';
 
+function estimateGraduationDate(maxPlanSem, currentSem) {
+  const semsFromNow = maxPlanSem - currentSem;
+  if (semsFromNow <= 0) return null;
+  const now   = new Date();
+  const month = now.getMonth() + 1;
+  const year  = now.getFullYear();
+  // 0 = first sem (Mar–Jul), 1 = second sem (Ago–Dic)
+  let ord  = (month >= 3 && month <= 7) ? 0 : 1;
+  ord     += semsFromNow;
+  const gradYear = year + Math.floor(ord / 2);
+  const gradSem  = ord % 2;
+  return `${gradSem === 0 ? 'Mar–Jul' : 'Ago–Dic'} ${gradYear}`;
+}
+
 /**
  * @param {object} ctx
  * @param {Set}    ctx.approved
@@ -152,8 +166,27 @@ function buildPostponedSection(postponedArr) {
 }
 
 function buildProjectionSection(plan, nextSem) {
-  const futureSems = Object.keys(plan).map(Number).filter(s => s > nextSem).sort((a, b) => a - b);
-  if (!futureSems.length) return '';
+  const allPlanSems = Object.keys(plan).map(Number).sort((a, b) => a - b);
+  const futureSems  = allPlanSems.filter(s => s > nextSem);
+  if (!allPlanSems.length) return '';
+
+  const currentSem    = nextSem - 1;
+  const maxPlanSem    = Math.max(...allPlanSems);
+  const semsRemaining = maxPlanSem - currentSem;
+  const gradDate      = estimateGraduationDate(maxPlanSem, currentSem);
+
+  const gradBadge = gradDate ? `
+    <div style="margin-bottom:8px;padding:8px 10px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:7px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:10px;color:var(--blue);font-weight:600">🎓 Titulación estimada</span>
+      <span style="font-size:12px;font-weight:700;color:var(--blue)">${gradDate}</span>
+    </div>
+    <div style="margin-bottom:8px;font-size:10px;color:var(--text-2);text-align:right">
+      ${semsRemaining} semestre${semsRemaining !== 1 ? 's' : ''} restante${semsRemaining !== 1 ? 's' : ''}
+    </div>` : '';
+
+  if (!futureSems.length) {
+    return `<div>${gradBadge}</div>`;
+  }
 
   const items = futureSems.slice(0, 4).map(s => {
     const ids       = plan[s] ?? [];
@@ -179,6 +212,7 @@ function buildProjectionSection(plan, nextSem) {
   return `
     <div>
       <div class="section-title">Proyección futura</div>
+      ${gradBadge}
       ${items}
       ${moreHint}
     </div>`;
@@ -229,13 +263,18 @@ function buildBlockedSection(blockedArr) {
 /**
  * @returns {string}
  */
-export function buildSumbarHTML({ approved, studying, failed, notTaken, blocked, recommended }) {
+export function buildSumbarHTML({ approved, studying, failed, notTaken, blocked, recommended, plan = {}, currentSem = null }) {
   const approvedSCT    = COURSES.filter(c => approved.has(c.id)).reduce((sum, c) => sum + c.credits, 0);
   const studyingSCT    = studying ? COURSES.filter(c => studying.has(c.id)).reduce((sum, c) => sum + c.credits, 0) : 0;
   const accumulatedSCT = approvedSCT + studyingSCT;
   const pct            = Math.round(approvedSCT / TOTAL_CREDITS * 100);
   const recommendedSCT = COURSES.filter(c => recommended.has(c.id)).reduce((sum, c) => sum + c.credits, 0);
   const delayed        = failed.size + notTaken.size;
+
+  const planSems       = Object.keys(plan).map(Number);
+  const maxPlanSem     = planSems.length ? Math.max(...planSems) : null;
+  const semsLeft       = (maxPlanSem && currentSem) ? maxPlanSem - currentSem : null;
+  const gradDate       = (maxPlanSem && currentSem) ? estimateGraduationDate(maxPlanSem, currentSem) : null;
 
   return `
     <div>
@@ -258,5 +297,15 @@ export function buildSumbarHTML({ approved, studying, failed, notTaken, blocked,
     <div>
       <div style="font-size:9px;color:var(--text-2)">Avance</div>
       <div class="sumbar-value">${pct}%</div>
-    </div>`;
+    </div>
+    ${semsLeft !== null ? `
+    <div>
+      <div style="font-size:9px;color:var(--text-2)">Semestres restantes</div>
+      <div class="sumbar-value" style="color:var(--blue)">${semsLeft}</div>
+    </div>` : ''}
+    ${gradDate ? `
+    <div>
+      <div style="font-size:9px;color:var(--text-2)">Titulación estimada</div>
+      <div class="sumbar-value" style="color:var(--blue);font-size:12px">🎓 ${gradDate}</div>
+    </div>` : ''}`;
 }

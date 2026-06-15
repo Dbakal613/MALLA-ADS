@@ -137,3 +137,27 @@ export const resetAll = () => {
   semesterOfYear    = null;
   save();
 };
+
+export const getStateSnapshot = () => JSON.stringify({
+  courseStatuses,
+  semesterOverrides,
+  postponedCourses:  [...postponedCourses],
+  extendedSemesters: [...extendedSemesters],
+  strategy,
+  currentYear,
+  semesterOfYear,
+});
+
+export const restoreStateSnapshot = (json) => {
+  try {
+    const d           = JSON.parse(json);
+    courseStatuses    = d.courseStatuses    ?? {};
+    semesterOverrides = d.semesterOverrides ?? {};
+    postponedCourses  = new Set(Array.isArray(d.postponedCourses)  ? d.postponedCourses  : []);
+    extendedSemesters = new Set(Array.isArray(d.extendedSemesters) ? d.extendedSemesters.map(Number) : []);
+    strategy          = d.strategy      ?? 'equilibrada';
+    currentYear       = d.currentYear   ?? null;
+    semesterOfYear    = d.semesterOfYear ?? null;
+    save();
+  } catch (_) {}
+};

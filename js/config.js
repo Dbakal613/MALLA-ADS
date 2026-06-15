@@ -64,7 +64,11 @@ export function updateTopbarBadge() {
 }
 
 export function handleReset() {
-  if (!confirm('¿Reiniciar todo?')) return;
+  document.getElementById('confirm-reset-modal').classList.add('modal-overlay--open');
+}
+
+export function doReset() {
+  document.getElementById('confirm-reset-modal').classList.remove('modal-overlay--open');
   resetAll();
   updateTopbarBadge();
   document.dispatchEvent(new CustomEvent('app:rerender'));

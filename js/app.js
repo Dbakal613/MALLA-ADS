@@ -11,14 +11,15 @@
 import { getApproved, getFailed, getNotTaken, getCurrentlyStudying, getPostponed,
          getCourseStatus, getCurrentSemesterNumber, getStrategy, getAllOverrides,
          getAllExtensions, toggleSemesterExtension,
-         setCourseStatus, postponeCourse, resumeCourse, setStrategy } from './state.js';
+         setCourseStatus, postponeCourse, resumeCourse, setStrategy,
+         getStateSnapshot, restoreStateSnapshot } from './state.js';
 import { getBlocked, getCourseById, buildSemMap, safeCalculatePlan, getSemesterParity } from './planner.js';
 import { COURSES, TOTAL_CREDITS } from './data.js';
 import { buildGridHTML }   from './grid-html.js';
 import { buildPanelHTML, buildSumbarHTML } from './panel-html.js';
 import { openContextMenu, closeContextMenu } from './context-menu.js';
 import { onDragStart, onDragStartProjected, onDragEnd, onDragOver, onDragLeave, onDrop } from './drag-drop.js';
-import { openConfig, closeConfig, applyConfig, handleConfigClick, updateTopbarBadge, handleReset } from './config.js';
+import { openConfig, closeConfig, applyConfig, handleConfigClick, updateTopbarBadge, handleReset, doReset } from './config.js';
 import { showToast } from './toast.js';
 import { initOnboarding, closeOnboarding } from './onboarding.js';
 
@@ -29,6 +30,8 @@ let lastSemMap     = {};
 let lastPlan       = {};
 let lastCurrentSem = null;
 let lastStrategy   = 'equilibrada';
+let lastSearchQuery = '';
+let whatIfSnapshot  = null;
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
@@ -71,9 +74,11 @@ function _render() {
 
   document.getElementById('sumbar').innerHTML = buildSumbarHTML({
     approved, studying, failed, notTaken, blocked, recommended,
+    plan, currentSem,
   });
 
   attachDragListeners();
+  applySearchFilter(lastSearchQuery);
 }
 
 // ── Drag event attachment (runs after each render) ───────────────────────────
@@ -256,7 +261,58 @@ function handleClick(event) {
     case 'download-projection':
       downloadProjection();
       break;
+
+    // ── Confirm reset modal ───────────────────────────────────────────────────
+    case 'do-reset':
+      doReset();
+      break;
+
+    case 'cancel-reset':
+      document.getElementById('confirm-reset-modal').classList.remove('modal-overlay--open');
+      break;
+
+    // ── Whatif (simulation) mode ──────────────────────────────────────────────
+    case 'activate-whatif':
+      if (whatIfSnapshot) break;
+      whatIfSnapshot = getStateSnapshot();
+      document.getElementById('whatif-banner').style.display = '';
+      showToast('Modo simulación activo. Tus cambios son temporales.', 'success');
+      break;
+
+    case 'exit-whatif-discard':
+      if (!whatIfSnapshot) break;
+      restoreStateSnapshot(whatIfSnapshot);
+      whatIfSnapshot = null;
+      document.getElementById('whatif-banner').style.display = 'none';
+      updateTopbarBadge();
+      render();
+      showToast('Simulación descartada. Estado restaurado.', 'success');
+      break;
+
+    case 'exit-whatif-apply':
+      whatIfSnapshot = null;
+      document.getElementById('whatif-banner').style.display = 'none';
+      showToast('Cambios de la simulación guardados.', 'success');
+      break;
   }
+}
+
+// ── Search filter ────────────────────────────────────────────────────────────
+
+function applySearchFilter(query) {
+  const q = query.trim().toLowerCase();
+  document.querySelectorAll('.course-card[data-course-id]').forEach(card => {
+    if (!q) {
+      card.style.opacity = '';
+      card.style.outline = '';
+      return;
+    }
+    const name  = card.querySelector('.course-name')?.textContent.toLowerCase() ?? '';
+    const match = name.includes(q);
+    card.style.opacity      = match ? '' : '0.12';
+    card.style.outline      = match ? '2px solid var(--blue)' : '';
+    card.style.outlineOffset = match ? '2px' : '';
+  });
 }
 
 // ── Download projection ───────────────────────────────────────────────────────
@@ -360,3 +416,16 @@ function downloadProjection() {
 
 render();
 initOnboarding();
+
+document.getElementById('topbar-search').addEventListener('input', e => {
+  lastSearchQuery = e.target.value;
+  applySearchFilter(lastSearchQuery);
+});
+
+document.getElementById('topbar-search').addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    e.target.value = '';
+    lastSearchQuery = '';
+    applySearchFilter('');
+  }
+});

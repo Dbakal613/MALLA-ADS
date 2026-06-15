@@ -24,10 +24,22 @@
       Malla Curricular <span>— Administración de Servicios</span>
     </div>
     <span class="topbar-badge" id="topbar-badge">Sin configurar</span>
+    <input class="topbar-search" id="topbar-search" type="search" placeholder="🔍 Buscar ramo…" autocomplete="off">
     <button class="btn" data-action="open-config">⚙ Mi semestre</button>
     <button class="btn" data-action="open-onboarding">? Instructivo</button>
     <button class="btn" data-action="download-projection">↓ Descargar</button>
-    <button class="btn" data-action="reset-all">↩ Reiniciar</button>
+    <button class="btn" data-action="activate-whatif">⚗ Simular</button>
+    <span class="topbar-sep"></span>
+    <button class="btn btn--danger" data-action="reset-all">↩ Reiniciar</button>
+  </div>
+
+  <!-- ── Whatif banner ─────────────────────────────────────────────────── -->
+  <div class="whatif-banner" id="whatif-banner" style="display:none">
+    <span>⚗ Modo simulación activo — puedes marcar ramos libremente. Los cambios no se guardarán al descartar.</span>
+    <div class="whatif-banner-actions">
+      <button class="btn" data-action="exit-whatif-apply">Guardar cambios</button>
+      <button class="btn btn--danger" data-action="exit-whatif-discard">Descartar</button>
+    </div>
   </div>
 
   <!-- ── Legend bar ─────────────────────────────────────────────────────── -->
@@ -130,6 +142,19 @@
     <div style="margin-top:24px;display:flex;justify-content:flex-end;gap:10px">
       <button class="btn" data-action="show-onboarding-again" style="font-size:11px;color:var(--text-3)">Ver de nuevo</button>
       <button class="btn btn--primary" data-action="close-onboarding" style="padding:10px 24px">Entendido, comenzar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Confirm reset modal ────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="confirm-reset-modal">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div style="font-size:32px;margin-bottom:10px">⚠️</div>
+    <h2 style="margin-bottom:8px">¿Reiniciar todo?</h2>
+    <p class="modal-sub" style="margin-bottom:20px">Se borrará todo tu avance: estados de ramos, semestre configurado y ajustes. Esta acción no se puede deshacer.</p>
+    <div class="modal-footer" style="justify-content:center;gap:10px">
+      <button class="btn" style="padding:9px 20px" data-action="cancel-reset">Cancelar</button>
+      <button class="btn btn--danger" style="padding:9px 20px;font-weight:600" data-action="do-reset">Sí, reiniciar todo</button>
     </div>
   </div>
 </div>
