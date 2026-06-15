@@ -41,6 +41,7 @@ export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, 
     postponedArr.length ? buildPostponedSection(postponedArr) : '',
     buildProjectionSection(plan, nextSem),
     blockedArr.length  ? buildBlockedSection(blockedArr) : '',
+    buildDownloadButton(),
   ].join('');
 }
 
@@ -181,7 +182,13 @@ function buildProjectionSection(plan, nextSem) {
       <div class="section-title">Proyección futura</div>
       ${items}
       ${moreHint}
-      <button class="btn" style="width:100%;margin-top:8px;padding:8px;text-align:center" data-action="download-projection">
+    </div>`;
+}
+
+function buildDownloadButton() {
+  return `
+    <div>
+      <button class="btn" style="width:100%;padding:9px;text-align:center" data-action="download-projection">
         ↓ Descargar proyección completa
       </button>
     </div>`;
