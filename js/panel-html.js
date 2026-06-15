@@ -41,7 +41,6 @@ export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, 
     postponedArr.length ? buildPostponedSection(postponedArr) : '',
     buildProjectionSection(plan, nextSem),
     blockedArr.length  ? buildBlockedSection(blockedArr) : '',
-    buildDownloadButton(),
   ].join('');
 }
 
@@ -55,8 +54,7 @@ function buildUnconfiguredPanel() {
       <button class="btn btn--primary" style="width:100%;padding:9px" data-action="open-config">
         ⚙ Configurar ahora →
       </button>
-    </div>
-    ${buildDownloadButton()}`;
+    </div>`;
 }
 
 function buildProgressSection(approved, failed, notTaken, blockedArr, approvedSCT, studyingSCT, pct) {
