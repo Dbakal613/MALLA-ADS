@@ -55,7 +55,8 @@ function buildUnconfiguredPanel() {
       <button class="btn btn--primary" style="width:100%;padding:9px" data-action="open-config">
         ⚙ Configurar ahora →
       </button>
-    </div>`;
+    </div>
+    ${buildDownloadButton()}`;
 }
 
 function buildProgressSection(approved, failed, notTaken, blockedArr, approvedSCT, studyingSCT, pct) {
