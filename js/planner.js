@@ -385,9 +385,11 @@ export const calculatePlan = () => {
       plan[s] = plan[s] ?? [];
       plan[s].unshift(PRACTICUM_ID);
 
-      // Keep companions that fit within PRACTICUM_MAX_COMPANION_CREDITS (7 SCT).
+      // Keep companions that respect the semester credit cap (33 or 34 with extension).
+      // Practicum is 30 SCT, so companions can be at most cap − 30 = 3 (or 4) SCT.
+      const pracCap        = 33 + (isExtendedSemester(s) ? 1 : 0);
       const allowed        = [PRACTICUM_ID];
-      let   remaining      = PRACTICUM_MAX_COMPANION_CREDITS;
+      let   remaining      = pracCap - PRACTICUM_CREDITS;
       plan[s]
         .filter(id => id !== PRACTICUM_ID)
         .forEach(id => {
@@ -406,7 +408,8 @@ export const calculatePlan = () => {
           if (c.offering !== 'both' && getSemesterParity(s2) !== c.offering) continue;
           const s2Credits = (plan[s2] ?? [])
             .reduce((sum, rid) => sum + (getCourseById(rid)?.credits ?? 0), 0);
-          if (s2Credits + c.credits <= 33) {
+          const s2Cap = 33 + (isExtendedSemester(s2) ? 1 : 0);
+          if (s2Credits + c.credits <= s2Cap) {
             plan[s2] = plan[s2] ?? [];
             plan[s2].push(id);
             break;

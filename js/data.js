@@ -101,8 +101,8 @@ export const PRACTICUM_ID = 'practica';
 export const PRACTICUM_CREDITS = 30;
 /** Minimum non-practicum SCT that must be approved/in-progress before practicum can be scheduled. */
 export const PRACTICUM_MIN_SCT = 220;
-/** Maximum companion credits allowed in the same semester as practicum (30 + 7 = 37 SCT total). */
-export const PRACTICUM_MAX_COMPANION_CREDITS = 7;
+/** Base companion credits alongside practicum: 33 cap − 30 practicum = 3 (4 if semester is extended). */
+export const PRACTICUM_MAX_COMPANION_CREDITS = 3;
 
 export const STRATEGIES = {
   rapida:       { maxSemester: 9,  preferredCredits: 33 },
