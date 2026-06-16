@@ -88,7 +88,13 @@ function handleProjectedDrop(targetSem) {
     draggedProjectedId = null; return;
   }
 
-  const existingCredits = computeDestinationCredits(targetSem, draggedProjectedId);
+  // Use the higher of native semMap credits and plan credits for the destination semester.
+  // Plan credits correctly account for other projected courses already placed there.
+  const { plan: currentPlan } = safeCalculatePlan();
+  const planTargetCredits = (currentPlan[targetSem] ?? [])
+    .filter(id => id !== draggedProjectedId)
+    .reduce((sum, id) => { const c = getCourseById(id); return c ? sum + c.credits : sum; }, 0);
+  const existingCredits = Math.max(computeDestinationCredits(targetSem, draggedProjectedId), planTargetCredits);
   const projCap = 33 + (isExtendedSemester(targetSem) ? 1 : 0);
   if (existingCredits + course.credits > projCap) {
     showToast(

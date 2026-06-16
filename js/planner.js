@@ -273,6 +273,18 @@ export const calculatePlan = () => {
     })
     .sort((a, b) => countDependents(b.id) - countDependents(a.id) || b.credits - a.credits)
     .forEach(c => {
+      // Hard-pinned course: respect the override instead of drifting to another semester.
+      // Without this guard, the fallback would place the course wherever credits fit,
+      // creating a mismatch between semMap[override] and planMap[fallback_sem] → duplication.
+      if (overrides[c.id] && overrides[c.id] >= nextSem) {
+        const s = overrides[c.id];
+        if (c.offering === 'both' || getSemesterParity(s) === c.offering) {
+          plan[s] = plan[s] ?? [];
+          if (!plan[s].includes(c.id)) plan[s].push(c.id);
+          scheduled.add(c.id);
+        }
+        return;
+      }
       const start = earliestAvailable[c.id];
       for (let s = start; s <= start + 30; s++) {
         if (c.offering !== 'both' && getSemesterParity(s) !== c.offering) continue;
