@@ -60,10 +60,14 @@ export const buildSemMap = () => {
 export const getBlocked = () => {
   const blocked = new Set();
   const problematic = new Set([...getFailed(), ...getNotTaken()]);
+  const approved    = getApproved();
 
   const blockTransitively = (id) => {
     COURSES.forEach(course => {
       if (course.prerequisites.includes(id) && !blocked.has(course.id)) {
+        // If the course is already approved it is not blocked, and its dependents
+        // are not blocked through this path — approved courses break the chain.
+        if (approved.has(course.id)) return;
         blocked.add(course.id);
         blockTransitively(course.id);
       }
