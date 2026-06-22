@@ -16,7 +16,7 @@ import { getApproved, getFailed, getNotTaken, getCurrentlyStudying, getPostponed
 import { getBlocked, getCourseById, buildSemMap, safeCalculatePlan, getSemesterParity } from './planner.js';
 import { COURSES, TOTAL_CREDITS } from './data.js';
 import { buildGridHTML }   from './grid-html.js';
-import { buildPanelHTML, buildSumbarHTML } from './panel-html.js';
+import { buildPanelHTML } from './panel-html.js';
 import { openContextMenu, closeContextMenu } from './context-menu.js';
 import { onDragStart, onDragStartProjected, onDragEnd, onDragOver, onDragLeave, onDrop } from './drag-drop.js';
 import { openConfig, closeConfig, applyConfig, handleConfigClick, updateTopbarBadge, handleReset, doReset } from './config.js';
@@ -79,11 +79,6 @@ function _render() {
   document.getElementById('panel').innerHTML = buildPanelHTML({
     approved, studying, failed, notTaken, blocked, recommended, plan,
     postponed, currentSem, strategy,
-  });
-
-  document.getElementById('sumbar').innerHTML = buildSumbarHTML({
-    approved, studying, failed, notTaken, blocked, recommended,
-    plan, currentSem,
   });
 
   attachDragListeners();
