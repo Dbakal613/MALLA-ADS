@@ -47,7 +47,7 @@ export const SCHEDULE_2S_2026 = [
     optativoKey: null, optativoName: null,
     blocks: [
       { day: 'Lunes',  start: '10:30', end: '12:20' },
-      { day: 'Jueves', start: '14:30', end: '16:20' },
+      { day: 'Jueves', start: '14:30', end: '15:20' },
     ],
   },
   {
@@ -70,7 +70,7 @@ export const SCHEDULE_2S_2026 = [
     optativoKey: null, optativoName: null,
     blocks: [
       { day: 'Lunes',   start: '08:30', end: '10:20' },
-      { day: 'Viernes', start: '12:30', end: '13:20' },
+      { day: 'Viernes', start: '12:30', end: '14:20' },
     ],
   },
   {
@@ -222,7 +222,7 @@ export const SCHEDULE_2S_2026 = [
     optativoKey: null, optativoName: null,
     blocks: [
       { day: 'Miércoles', start: '12:30', end: '13:20' },
-      { day: 'Viernes',   start: '12:30', end: '13:20' },
+      { day: 'Viernes',   start: '12:30', end: '14:20' },
     ],
   },
   {
