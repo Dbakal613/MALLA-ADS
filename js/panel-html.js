@@ -73,7 +73,7 @@ function estimateGraduationDate(maxPlanSem, currentSem) {
 export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, recommended, plan, postponed, currentSem, strategy }) {
   const name = getUserName();
 
-  if (!currentSem) return buildUnconfiguredPanel(name);
+  if (!currentSem) return buildProgressSection(name, approved, studying);
 
   const nextSem        = currentSem + 1;
   const approvedSCT    = COURSES.filter(c => approved.has(c.id)).reduce((sum, c) => sum + c.credits, 0);
@@ -96,19 +96,6 @@ export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, 
   ].join('');
 }
 
-function buildUnconfiguredPanel(name) {
-  const greeting = name ? `Hola, <strong>${name}</strong> — ` : '';
-  return `
-    <div>
-      <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">${greeting}configura tu semestre actual</p>
-      <p style="font-size:11px;color:var(--text-2);line-height:1.6;margin-bottom:12px">
-        Dinos en qué punto estás para calcular tu ruta personalizada y ver los ramos recomendados para el próximo semestre.
-      </p>
-      <button class="btn btn--primary" style="width:100%;padding:10px" data-action="open-config">
-        ⚙ Configurar ahora →
-      </button>
-    </div>`;
-}
 
 function buildProgressSection(name, approved, studying) {
   const total         = COURSES.length;
