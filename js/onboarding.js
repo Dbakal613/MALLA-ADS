@@ -32,3 +32,8 @@ export function closeOnboarding() {
   document.getElementById('onboarding-modal').classList.remove('modal-overlay--open');
   localStorage.setItem(SEEN_KEY, '1');
 }
+
+export function clearUserData() {
+  try { localStorage.removeItem(USER_KEY); }  catch(_) {}
+  try { localStorage.removeItem(SEEN_KEY); }  catch(_) {}
+}

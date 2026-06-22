@@ -21,8 +21,8 @@ import { openContextMenu, closeContextMenu } from './context-menu.js';
 import { onDragStart, onDragStartProjected, onDragEnd, onDragOver, onDragLeave, onDrop } from './drag-drop.js';
 import { openConfig, closeConfig, applyConfig, handleConfigClick, updateTopbarBadge, handleReset, doReset } from './config.js';
 import { showToast } from './toast.js';
-import { initOnboarding, closeOnboarding, getUserName, getUserPace, saveUser } from './onboarding.js';
-import { updateStudentProfile } from './student-profile.js';
+import { initOnboarding, closeOnboarding, getUserName, getUserPace, saveUser, clearUserData } from './onboarding.js';
+import { updateStudentProfile, getStudentProfile, clearStudentProfile } from './student-profile.js';
 
 // ── Module-level state snapshots ─────────────────────────────────────────────
 // Kept here so action handlers can reference the last-rendered values without
@@ -89,6 +89,7 @@ function _render() {
   attachDragListeners();
   applySearchFilter(lastSearchQuery);
   updateTopbarGreeting();
+  renderGreetingBar();
 }
 
 // ── Drag event attachment (runs after each render) ───────────────────────────
@@ -250,6 +251,42 @@ function handleClick(event) {
     case 'close-config':
       closeConfig();
       break;
+
+    // ── Profile actions (greeting bar) ───────────────────────────────────────
+    case 'edit-profile': {
+      const profile = getStudentProfile();
+      const ni = document.getElementById('welcome-name-input');
+      if (ni) ni.value = profile.name || '';
+      document.querySelectorAll('.welcome-sem-btn').forEach(b => {
+        b.classList.toggle('welcome-sem-btn--selected', Number(b.dataset.sem) === profile.currentSemester);
+      });
+      document.querySelectorAll('.welcome-pace-btn').forEach(b => {
+        b.classList.toggle('welcome-pace-btn--selected', b.dataset.pace === (profile.preferredPace || 'equilibrada'));
+      });
+      hideWelcomeError();
+      document.getElementById('welcome-modal').classList.add('modal-overlay--open');
+      break;
+    }
+
+    case 'reset-profile': {
+      if (!confirm('¿Reiniciar tu perfil?\n\nTu avance en los ramos se mantendrá. Solo se borrará tu nombre, semestre actual y ritmo.')) break;
+      clearUserData();
+      clearStudentProfile();
+      setCurrentSemester(null, null);
+      setStrategy('equilibrada');
+      // Reset welcome form to empty state
+      const ni2 = document.getElementById('welcome-name-input');
+      if (ni2) ni2.value = '';
+      document.querySelectorAll('.welcome-sem-btn').forEach(b => b.classList.remove('welcome-sem-btn--selected'));
+      document.querySelectorAll('.welcome-pace-btn').forEach(b => {
+        b.classList.toggle('welcome-pace-btn--selected', b.dataset.pace === 'equilibrada');
+      });
+      hideWelcomeError();
+      document.getElementById('welcome-modal').classList.add('modal-overlay--open');
+      updateTopbarBadge();
+      render();
+      break;
+    }
 
     // ── Welcome screen ────────────────────────────────────────────────────────
     case 'select-welcome-sem':
@@ -481,6 +518,37 @@ function downloadProjection() {
   URL.revokeObjectURL(url);
 
   showToast('Proyección descargada.', 'success');
+}
+
+// ── Greeting bar ─────────────────────────────────────────────────────────────
+
+const GREETING_SUBTITLES = {
+  rapida:      'Buscaremos una ruta eficiente para avanzar lo antes posible, cuidando que la carga siga siendo realista.',
+  equilibrada: 'Planifiquemos una ruta clara, exigente pero sostenible.',
+  tranquila:   'Avancemos paso a paso, priorizando una carga manejable y estable.',
+};
+
+function renderGreetingBar() {
+  const el = document.getElementById('greeting-bar');
+  if (!el) return;
+  const profile  = getStudentProfile();
+  const name     = profile.name?.trim();
+  const pace     = profile.preferredPace;
+
+  const title    = name
+    ? `Hola, <strong>${name}</strong>, organicemos tu ruta.`
+    : 'Organicemos tu ruta académica.';
+  const subtitle = GREETING_SUBTITLES[pace] || 'Entiende tu avance, ajusta tus ramos y proyecta tus próximos semestres.';
+
+  el.innerHTML = `
+    <div class="greeting-bar-text">
+      <p class="greeting-title">${title}</p>
+      <p class="greeting-subtitle">${subtitle}</p>
+    </div>
+    <div class="greeting-bar-actions">
+      <button class="btn greeting-bar-btn"          data-action="edit-profile">✏ Cambiar perfil</button>
+      <button class="btn greeting-bar-btn greeting-bar-btn--danger" data-action="reset-profile">↩ Reiniciar perfil</button>
+    </div>`;
 }
 
 // ── Welcome screen helpers ────────────────────────────────────────────────────

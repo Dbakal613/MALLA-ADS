@@ -611,6 +611,52 @@
   margin-top: 5px;
 }
 
+/* ── Greeting bar ── */
+.greeting-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.greeting-bar-text { flex: 1; min-width: 0; }
+.greeting-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+.greeting-subtitle {
+  font-size: 10px;
+  color: var(--text-2);
+  line-height: 1.4;
+  margin-top: 1px;
+}
+.greeting-bar-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.greeting-bar-btn {
+  font-size: 10px !important;
+  padding: 4px 10px !important;
+  height: auto !important;
+  color: var(--text-2) !important;
+}
+.greeting-bar-btn--danger { color: var(--red) !important; }
+.greeting-bar-btn--danger:hover {
+  background: var(--red-bg) !important;
+  border-color: var(--red-border) !important;
+}
+
+@media (max-width: 680px) {
+  .greeting-bar { flex-wrap: wrap; padding: 8px 10px; }
+  .greeting-bar-text { min-width: 100%; }
+  .greeting-bar-actions { width: 100%; justify-content: flex-end; }
+}
+
 /* ── Topbar user greeting ── */
 .topbar-user-greeting {
   font-size: 11px;
