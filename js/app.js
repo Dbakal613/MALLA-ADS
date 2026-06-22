@@ -23,6 +23,7 @@ import { openConfig, closeConfig, applyConfig, handleConfigClick, updateTopbarBa
 import { showToast } from './toast.js';
 import { initOnboarding, closeOnboarding, getUserName, getUserPace, saveUser, clearUserData } from './onboarding.js';
 import { updateStudentProfile, getStudentProfile, clearStudentProfile } from './student-profile.js';
+import { initScheduleView, destroyScheduleView } from './schedule-view.js';
 
 // ── Module-level state snapshots ─────────────────────────────────────────────
 // Kept here so action handlers can reference the last-rendered values without
@@ -33,6 +34,7 @@ let lastCurrentSem = null;
 let lastStrategy   = 'equilibrada';
 let lastSearchQuery = '';
 let whatIfSnapshot  = null;
+let scheduleMode    = false;
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
@@ -416,6 +418,38 @@ function handleClick(event) {
     case 'cancel-reset':
       document.getElementById('confirm-reset-modal').classList.remove('modal-overlay--open');
       break;
+
+    // ── Schedule view toggle ──────────────────────────────────────────────────
+    case 'toggle-schedule-view': {
+      scheduleMode = !scheduleMode;
+      const mainEl  = document.querySelector('.main');
+      const svEl    = document.getElementById('schedule-view');
+      const btn     = document.getElementById('schedule-toggle-btn');
+      const search  = document.getElementById('topbar-search');
+      const infobar = document.querySelector('.infobar');
+      const greeting = document.getElementById('greeting-bar');
+      const cta      = document.getElementById('projection-cta');
+      if (scheduleMode) {
+        mainEl.style.display   = 'none';
+        if (infobar)  infobar.style.display  = 'none';
+        if (greeting) greeting.style.display = 'none';
+        if (cta)      cta.style.display      = 'none';
+        search.style.display   = 'none';
+        svEl.style.display     = 'flex';
+        if (btn) btn.textContent = '← Malla';
+        initScheduleView();
+      } else {
+        svEl.style.display     = 'none';
+        mainEl.style.display   = '';
+        if (infobar)  infobar.style.display  = '';
+        if (greeting) greeting.style.display = '';
+        search.style.display   = '';
+        if (btn) btn.textContent = '📅 Ver horario';
+        destroyScheduleView();
+        updateProjectionCTA();
+      }
+      break;
+    }
 
     // ── Whatif (simulation) mode ──────────────────────────────────────────────
     // ── Free drag mode ────────────────────────────────────────────────────────

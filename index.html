@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/schedule.css">
 </head>
 <body>
 
@@ -31,6 +32,7 @@
     <button class="btn" data-action="download-projection">↓ Descargar proyección</button>
     <button class="btn" data-action="activate-whatif">⚗ Probar una ruta</button>
     <button class="btn" id="free-drag-btn" data-action="activate-free-drag" style="display:none">↔ Modo libre</button>
+    <button class="btn" id="schedule-toggle-btn" data-action="toggle-schedule-view">📅 Ver horario</button>
     <span class="topbar-sep"></span>
     <button class="btn btn--danger" data-action="reset-all">↩ Reiniciar todo</button>
   </div>
@@ -94,6 +96,9 @@
     </div>
 
   </div>
+
+  <!-- ── Schedule view (hidden by default) ─────────────────────────────────── -->
+  <div id="schedule-view" style="display:none"></div>
 
 </div>
 
