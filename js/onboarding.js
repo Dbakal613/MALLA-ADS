@@ -1,3 +1,5 @@
+import { getStudentProfile } from './student-profile.js';
+
 const SEEN_KEY = 'malla-onboarding-v1';
 const USER_KEY = 'malla-user-v1';
 
@@ -20,12 +22,9 @@ export function hasUser() {
 }
 
 export function initOnboarding() {
-  if (!hasUser()) {
+  const profile = getStudentProfile();
+  if (!profile.hasCompletedOnboarding) {
     document.getElementById('welcome-modal').classList.add('modal-overlay--open');
-    return;
-  }
-  if (!localStorage.getItem(SEEN_KEY)) {
-    document.getElementById('onboarding-modal').classList.add('modal-overlay--open');
   }
 }
 

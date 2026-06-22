@@ -91,33 +91,50 @@
     <div class="welcome-hero">
       <div class="welcome-emoji">🎓</div>
       <h2 class="welcome-title">Tu carrera, más clara y a tu ritmo</h2>
-      <p class="welcome-sub">Organiza tu ruta académica, controla tu avance y llega a la práctica profesional sin sorpresas.</p>
+      <p class="welcome-sub">Organiza tus ramos, entiende tu avance y planifica tus próximos semestres de una forma simple.</p>
     </div>
 
     <div class="welcome-field">
-      <label class="config-label">¿Cómo te llamas?</label>
+      <label class="welcome-label">¿Cómo te llamas?</label>
       <input class="welcome-name-input" id="welcome-name-input"
-             type="text" placeholder="Escribe tu nombre…"
-             autocomplete="off" maxlength="30">
+             type="text" placeholder="Ej: Josefa"
+             autocomplete="off" maxlength="40">
     </div>
 
     <div class="welcome-field">
-      <label class="config-label">¿Cómo prefieres avanzar en la carrera?</label>
+      <label class="welcome-label">¿En qué semestre estás?</label>
+      <div class="welcome-sem-grid">
+        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="1">Sem 1<span>1° año</span></button>
+        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="2">Sem 2<span>1° año</span></button>
+        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="3">Sem 3<span>2° año</span></button>
+        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="4">Sem 4<span>2° año</span></button>
+        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="5">Sem 5<span>3° año</span></button>
+        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="6">Sem 6<span>3° año</span></button>
+        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="7">Sem 7<span>4° año</span></button>
+        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="8">Sem 8<span>4° año</span></button>
+        <button class="welcome-sem-btn welcome-sem-btn--practica" data-action="select-welcome-sem" data-sem="9">Práctica Profesional<span>5° año</span></button>
+      </div>
+    </div>
+
+    <div class="welcome-field">
+      <label class="welcome-label">¿Cómo quieres avanzar?</label>
       <div class="welcome-pace-row">
         <button class="welcome-pace-btn" data-action="select-pace" data-pace="rapida">
-          🚀 Rápida
+          🚀 Quiero avanzar rápido
           <span>Máxima carga, terminas antes</span>
         </button>
         <button class="welcome-pace-btn welcome-pace-btn--selected" data-action="select-pace" data-pace="equilibrada">
-          ⚖️ Equilibrada
+          ⚖️ Quiero avanzar equilibradamente
           <span>Buen balance, ritmo sostenido</span>
         </button>
         <button class="welcome-pace-btn" data-action="select-pace" data-pace="tranquila">
-          🌿 Tranquila
+          🌿 Quiero avanzar con calma
           <span>Sin agobio, calidad de vida</span>
         </button>
       </div>
     </div>
+
+    <div class="welcome-validation" id="welcome-validation" style="display:none"></div>
 
     <button class="btn btn--primary welcome-start-btn" data-action="save-welcome">
       Empezar a organizar mi ruta →

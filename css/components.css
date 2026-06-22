@@ -629,10 +629,20 @@
 
 /* ── Welcome modal ── */
 .welcome-modal-box {
-  max-width: 460px !important;
+  max-width: 520px !important;
+  max-height: 92vh !important;
+  overflow-y: auto !important;
   padding: 32px 36px !important;
   background: linear-gradient(145deg, #F0F4FF 0%, #FFF9F2 60%, #F0FDF8 100%) !important;
 }
+.welcome-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 7px;
+}
+.welcome-field { margin-bottom: 18px; }
 .welcome-name-input {
   width: 100%;
   padding: 11px 14px;
@@ -644,12 +654,65 @@
   color: var(--text);
   outline: none;
   transition: border-color .15s, box-shadow .15s;
-  margin-top: 6px;
+  box-sizing: border-box;
 }
 .welcome-name-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-bg); }
 .welcome-name-input::placeholder { color: var(--text-3); }
 
-.welcome-pace-row { display: flex; flex-direction: column; gap: 7px; margin-top: 6px; }
+/* Semester selector */
+.welcome-sem-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.welcome-sem-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 6px;
+  border-radius: 9px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  text-align: center;
+  transition: all .15s;
+}
+.welcome-sem-btn span {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+.welcome-sem-btn:hover { border-color: var(--blue); background: var(--blue-bg); }
+.welcome-sem-btn--selected {
+  border-color: var(--blue);
+  background: var(--blue-bg);
+  color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(79,70,229,.08);
+}
+.welcome-sem-btn--selected span { color: var(--blue); }
+.welcome-sem-btn--practica { grid-column: 1 / -1; flex-direction: row; gap: 6px; }
+
+/* Validation message */
+.welcome-validation {
+  margin-bottom: 10px;
+  padding: 10px 13px;
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  border-radius: 8px;
+  font-size: 11px;
+  color: #92400E;
+  line-height: 1.55;
+}
+
+.welcome-pace-row { display: flex; flex-direction: column; gap: 7px; }
 .welcome-pace-btn {
   display: flex;
   align-items: center;
@@ -671,8 +734,14 @@
 .welcome-pace-btn:hover { border-color: var(--blue); background: var(--blue-bg); }
 .welcome-pace-btn--selected { border-color: var(--blue); background: var(--blue-bg); box-shadow: 0 0 0 3px rgba(79,70,229,.08); }
 
-.welcome-start-btn { width: 100%; margin-top: 18px !important; padding: 12px 0 !important; font-size: 13px !important; border-radius: 10px !important; }
+.welcome-start-btn { width: 100%; padding: 13px 0 !important; font-size: 13px !important; border-radius: 10px !important; }
 .welcome-legal { font-size: 10px; color: var(--text-3); text-align: center; margin-top: 10px; }
+
+@media (max-width: 540px) {
+  .welcome-modal-box { padding: 22px 18px !important; margin: 10px !important; }
+  .welcome-sem-grid { grid-template-columns: repeat(2, 1fr); }
+  .welcome-sem-btn--practica { grid-column: 1 / -1; }
+}
 
 /* ── Smooth card transitions ── */
 .course-card {
