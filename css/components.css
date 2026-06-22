@@ -332,6 +332,176 @@
 .action-btn--muted { border-color: var(--gray-border); color: var(--text-2); }
 .action-btn--muted:hover { background: var(--gray-bg); }
 
+/* ── "Tu próximo paso" card ─────────────────────────────────────────────── */
+.next-step-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.next-step-header {
+  padding: 13px 15px 11px;
+  background: linear-gradient(135deg, #FFFBEB 0%, #FFF7ED 100%);
+  border-bottom: 1px solid var(--amber-border);
+}
+.next-step-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.next-step-subtitle {
+  font-size: 10px;
+  color: var(--text-2);
+  line-height: 1.45;
+}
+.next-step-sem-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-top: 6px;
+}
+.next-step-body {
+  padding: 12px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ns-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 7px;
+}
+/* Recommended cards inside next-step */
+.ns-rec-card {
+  padding: 10px 11px;
+  border-radius: 9px;
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  margin-bottom: 6px;
+}
+.ns-rec-card:last-child { margin-bottom: 0; }
+.ns-rec-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.ns-rec-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+.ns-rec-meta {
+  font-size: 9px;
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+.ns-rec-why {
+  font-size: 10px;
+  color: var(--amber);
+  line-height: 1.4;
+}
+.ns-postpone-btn {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--amber-border);
+  background: rgba(255,255,255,.7);
+  color: var(--text-3);
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: all .1s;
+}
+.ns-postpone-btn:hover { background: var(--surface); color: var(--amber); }
+/* Why box */
+.ns-why-box {
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.ns-why-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ns-why-list li {
+  font-size: 10px;
+  color: var(--text-2);
+  line-height: 1.4;
+}
+/* Load section */
+.ns-load-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+.ns-load-sct {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  color: var(--text);
+  line-height: 1;
+}
+.ns-load-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.ns-load-badge--liviana    { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
+.ns-load-badge--equilibrada{ background: var(--blue-bg);   color: var(--blue);   border: 1px solid var(--blue-border);  }
+.ns-load-badge--alta       { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-border); }
+.ns-load-badge--muy-alta   { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-border);   }
+.ns-load-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.ns-load-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width .45s ease;
+}
+.ns-load-bar-fill--liviana    { background: var(--green); }
+.ns-load-bar-fill--equilibrada{ background: var(--blue);  }
+.ns-load-bar-fill--alta       { background: #D97706;      }
+.ns-load-bar-fill--muy-alta   { background: var(--red);   }
+.ns-load-cap-label {
+  font-size: 9px;
+  color: var(--text-3);
+  text-align: right;
+}
+/* Advice box */
+.ns-advice-box {
+  background: var(--surface-2);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 12px;
+}
+.ns-advice-text {
+  font-size: 10px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin: 0;
+}
+
 /* Postponed list */
 .postponed-item {
   padding: 7px 9px;

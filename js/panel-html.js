@@ -11,23 +11,6 @@ import { getContextualAcademicMessage } from './contextual-message.js';
 
 const semesterLabel = (s) => getSemesterParity(s) === 'first' ? 'Mar–Jul' : 'Ago–Dic';
 
-const PACE_CTX = {
-  rapida:      {
-    emoji: '🚀', label: 'Rápida',
-    next_msg: 'Al ritmo máximo, aquí están todos los ramos disponibles para el próximo semestre.',
-    advice: 'Aprovecha cada semestre al tope. Mantén los prerrequisitos al día para no bloquear ramos clave — una cadena rota puede retrasar mucho.',
-  },
-  equilibrada: {
-    emoji: '⚖️', label: 'Equilibrada',
-    next_msg: 'Selección balanceada para el próximo semestre. Buena carga sin saturarte.',
-    advice: 'El ritmo equilibrado te permite avanzar bien sin desgastarte. Es el ritmo que más estudiantes sostienen hasta el final.',
-  },
-  tranquila:   {
-    emoji: '🌿', label: 'Tranquila',
-    next_msg: 'Carga liviana para el próximo semestre. Calidad sobre cantidad.',
-    advice: 'Ir a tu propio ritmo es una decisión inteligente. Menos ramos, más aprendizaje. Cuida tu bienestar y llegarás igual de lejos.',
-  },
-};
 
 const ROUTE_MILESTONES = [
   { max: 25,  icon: '🌱', text: 'Construir una buena base para los próximos semestres.' },
@@ -86,9 +69,8 @@ export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, 
   return [
     buildProgressSection(name, approved, studying),
     buildContextualMessageCard(ctxMsg),
-    buildRecommendedSection(recommendedArr, recommendedSCT, nextSem, strategy),
+    buildNextStepSection(recommendedArr, recommendedSCT, nextSem, strategy, approved, blocked),
     buildStrategySection(strategy),
-    buildPaceAdvice(strategy),
     postponedArr.length ? buildPostponedSection(postponedArr) : '',
     buildProjectionSection(plan, nextSem),
     blockedArr.length   ? buildBlockedSection(blockedArr) : '',
@@ -176,41 +158,142 @@ function buildStrategySection(currentStrategy) {
     </div>`;
 }
 
-function buildRecommendedSection(recommendedArr, recommendedSCT, nextSem, strategy) {
-  const ctx   = PACE_CTX[strategy] || PACE_CTX.equilibrada;
-  const label = semesterLabel(nextSem);
-
-  const items = recommendedArr.length === 0
-    ? `<div class="empty-message">No hay ramos disponibles para el próximo semestre.</div>`
-    : recommendedArr.map(c => `
-        <div class="recommended-item" id="ri-${c.id}">
-          <div class="recommended-name">${c.name}</div>
-          <div class="recommended-meta">${c.credits} SCT · ${c.area}</div>
-          <div class="recommended-actions">
-            <button class="action-btn action-btn--muted" data-action="postpone" data-course-id="${c.id}">
-              ⏭ Posponer
-            </button>
-          </div>
-        </div>`).join('');
-
-  return `
-    <div>
-      <div class="section-title">
-        Para tu próximo semestre
-        <span class="count">${recommendedArr.length} ramos · ${recommendedSCT} SCT</span>
-      </div>
-      <div style="font-size:9px;color:var(--text-2);margin-bottom:6px">Semestre ${nextSem} · ${label}</div>
-      ${recommendedArr.length > 0 ? `<div style="font-size:10px;color:var(--text-2);line-height:1.5;padding:6px 9px;background:var(--surface-2);border-radius:7px;margin-bottom:7px">${ctx.next_msg}</div>` : ''}
-      <div class="rec-list">${items}</div>
-    </div>`;
+function courseWhyHint(course, approved) {
+  const pendingUnlocks = COURSES.filter(c =>
+    c.prerequisites.includes(course.id) && !approved.has(c.id)
+  ).length;
+  if (pendingUnlocks >= 4) return `🔓 Desbloquea ${pendingUnlocks} ramos del tramo siguiente`;
+  if (pendingUnlocks >= 2) return `🔓 Desbloquea ${pendingUnlocks} ramos más adelante`;
+  if (pendingUnlocks === 1) return '🔓 Desbloquea 1 ramo más adelante';
+  if (course.prerequisites.length === 0) return '✓ Sin prerrequisitos — disponible desde el inicio';
+  return '✓ Cumple todos los prerrequisitos';
 }
 
-function buildPaceAdvice(strategy) {
-  const ctx = PACE_CTX[strategy] || PACE_CTX.equilibrada;
+function loadInfo(sct, strategy) {
+  const caps = { rapida: 33, equilibrada: 28, tranquila: 26 };
+  const cap  = caps[strategy] ?? 28;
+  const r    = sct / cap;
+  if (r <= 0.55) return { key: 'liviana',    label: 'Carga liviana' };
+  if (r <= 0.82) return { key: 'liviana',    label: 'Carga moderada' };
+  if (r <= 1.0)  return { key: 'equilibrada', label: 'Carga equilibrada' };
+  if (r <= 1.15) return { key: 'alta',       label: 'Carga alta' };
+  return              { key: 'muy-alta',   label: 'Carga muy alta' };
+}
+
+function semesterAdvice(strategy, sct, blockedCount) {
+  const caps = { rapida: 33, equilibrada: 28, tranquila: 26 };
+  const cap  = caps[strategy] ?? 28;
+  const over  = sct > cap;
+  const under = sct < cap * 0.6;
+  const bloqNote = blockedCount > 0
+    ? ` Además, ${blockedCount} ramo${blockedCount !== 1 ? 's' : ''} bloqueado${blockedCount !== 1 ? 's' : ''} depende${blockedCount === 1 ? '' : 'n'} de lo que apruebes este semestre.`
+    : '';
+
+  if (strategy === 'rapida') {
+    if (over)  return `Esta carga supera el máximo sugerido para una ruta rápida. Revisa si puedes sostenerla sin afectar tus resultados.${bloqNote}`;
+    if (under) return `Hay margen para agregar más ramos si quieres aprovechar el semestre al máximo.${bloqNote}`;
+    return `Buena selección para ir al ritmo máximo. Mantén los prerrequisitos al día — una cadena rota puede costar semestres.${bloqNote}`;
+  }
+  if (strategy === 'tranquila') {
+    if (over)  return `Con una ruta tranquila, esta carga puede sentirse pesada. Considera posponer algún ramo para avanzar sin agotarte.${bloqNote}`;
+    if (under) return `Carga cómoda para tu ritmo. Tómate el tiempo necesario en cada ramo y avanza con calma.${bloqNote}`;
+    return `Carga bien ajustada para una ruta tranquila. Calidad sobre cantidad — llegarás igual de lejos.${bloqNote}`;
+  }
+  if (over)  return `Esta carga supera lo recomendado para una ruta equilibrada. Considera posponer algún ramo.${bloqNote}`;
+  if (under) return `Carga liviana para este semestre. Si tienes disponibilidad, podrías agregar otro ramo.${bloqNote}`;
+  return `Para una ruta equilibrada, esta carga parece razonable. Buen ritmo para avanzar sin agotarte.${bloqNote}`;
+}
+
+function buildNextStepSection(recommendedArr, recommendedSCT, nextSem, strategy, approved, blocked) {
+  const label = semesterLabel(nextSem);
+  const caps  = { rapida: 33, equilibrada: 28, tranquila: 26 };
+  const cap   = caps[strategy] ?? 28;
+
+  if (recommendedArr.length === 0) {
+    return `
+      <div class="next-step-card">
+        <div class="next-step-header">
+          <div class="next-step-title">Tu próximo paso</div>
+          <div class="next-step-subtitle">No hay ramos disponibles para el próximo semestre con tu configuración actual.</div>
+        </div>
+      </div>`;
+  }
+
+  const load         = loadInfo(recommendedSCT, strategy);
+  const barPct       = Math.min(100, Math.round(recommendedSCT / cap * 100));
+  const blockedCount = blocked ? blocked.size : 0;
+  const advice       = semesterAdvice(strategy, recommendedSCT, blockedCount);
+  const paceLabels   = { rapida: 'rápida', equilibrada: 'equilibrada', tranquila: 'tranquila' };
+
+  const anyUnlocks = recommendedArr.some(c =>
+    COURSES.some(other => other.prerequisites.includes(c.id) && !approved.has(other.id))
+  );
+
+  const whyItems = [
+    '✓ Cumplen todos los prerrequisitos del semestre',
+    anyUnlocks ? '🔓 Ayudan a desbloquear los próximos cursos de la carrera' : null,
+    recommendedSCT <= cap
+      ? '⚖️ Mantienen una carga razonable para tu ritmo de avance'
+      : '⚠️ La carga total supera el máximo sugerido para tu ritmo',
+    `🎯 Se alinean con tu ruta ${paceLabels[strategy] ?? 'equilibrada'}`,
+  ].filter(Boolean);
+
+  const recCards = recommendedArr.map(c => {
+    const why = courseWhyHint(c, approved);
+    return `
+      <div class="ns-rec-card">
+        <div class="ns-rec-top">
+          <div class="ns-rec-name">${c.name}</div>
+          <button class="ns-postpone-btn" data-action="postpone" data-course-id="${c.id}" title="Dejar para después">⏸</button>
+        </div>
+        <div class="ns-rec-meta">${c.credits} SCT · ${c.area}</div>
+        <div class="ns-rec-why">${why}</div>
+      </div>`;
+  }).join('');
+
   return `
-    <div style="padding:10px 12px;background:var(--surface-2);border-radius:9px;border-left:3px solid var(--blue)">
-      <div style="font-size:9px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Ritmo ${ctx.emoji} ${ctx.label}</div>
-      <div style="font-size:10px;color:var(--text-2);line-height:1.55">${ctx.advice}</div>
+    <div class="next-step-card">
+      <div class="next-step-header">
+        <div class="next-step-title">Tu próximo paso</div>
+        <div class="next-step-subtitle">Estos ramos parecen una buena opción para seguir avanzando.</div>
+        <div class="next-step-sem-label">Semestre ${nextSem} · ${label}</div>
+      </div>
+      <div class="next-step-body">
+
+        <div>
+          <div class="ns-section-label">Lo más recomendable ahora</div>
+          ${recCards}
+        </div>
+
+        <div>
+          <div class="ns-section-label">Por qué estos ramos</div>
+          <div class="ns-why-box">
+            <ul class="ns-why-list">
+              ${whyItems.map(item => `<li>${item}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <div class="ns-section-label">Carga estimada</div>
+          <div class="ns-load-row">
+            <span class="ns-load-sct">${recommendedSCT} SCT</span>
+            <span class="ns-load-badge ns-load-badge--${load.key}">${load.label}</span>
+          </div>
+          <div class="ns-load-bar">
+            <div class="ns-load-bar-fill ns-load-bar-fill--${load.key}" style="width:${barPct}%"></div>
+          </div>
+          <div class="ns-load-cap-label">Máximo sugerido: ${cap} SCT</div>
+        </div>
+
+        <div>
+          <div class="ns-section-label">Consejo para este semestre</div>
+          <div class="ns-advice-box">
+            <p class="ns-advice-text">${advice}</p>
+          </div>
+        </div>
+
+      </div>
     </div>`;
 }
 
