@@ -3,7 +3,7 @@
  * Uses data attributes; actual state mutations happen in app.js via the rerender event.
  */
 
-import { EXEMPTABLE_COURSE_IDS } from './data.js';
+import { COURSES, EXEMPTABLE_COURSE_IDS } from './data.js';
 import { getCourseById, getBlocked, getEffectiveSemester } from './planner.js';
 import { getCourseStatus, isPostponed } from './state.js';
 
@@ -20,10 +20,16 @@ export function openContextMenu(event, courseId) {
   const isBlocked = blocked.has(courseId) && status === 'pendiente';
   const postponed = isPostponed(courseId);
   const prereqNames = course.prerequisites.map(p => getCourseById(p)?.name ?? p);
+  const unlocks  = COURSES.filter(c => c.prerequisites.includes(courseId)).map(c => c.name);
 
   let meta = `${course.credits} SCT · Sem ${getEffectiveSemester(courseId)} · ${course.area}`;
-  if (prereqNames.length) meta += `<br>Pre: ${prereqNames.join(', ')}`;
-  if (isBlocked) meta += `<br><span style="color:var(--red)">⚠ Bloqueado — aprueba los prerrequisitos primero</span>`;
+  if (prereqNames.length) meta += `<br>Requiere: ${prereqNames.join(', ')}`;
+  if (unlocks.length) {
+    const shown = unlocks.slice(0, 3).join(', ');
+    const extra = unlocks.length > 3 ? ` +${unlocks.length - 3} más` : '';
+    meta += `<br><span style="color:var(--green)">🔓 Habilita: ${shown}${extra}</span>`;
+  }
+  if (isBlocked) meta += `<br><span style="color:var(--red)">⏳ Necesitas aprobar los prerrequisitos primero</span>`;
 
   const isApproved = ['aprobado', 'adelantado', 'eximido', 'convalidado'].includes(status);
 
@@ -59,7 +65,7 @@ export function openContextMenu(event, courseId) {
       ? menuButton('resume', courseId, '', 'menu-item--muted', '▶ Retomar en el plan')
       : '',
     isBlocked
-      ? `<div class="menu-item menu-item--muted" style="cursor:default;opacity:.5;font-size:10px">🔒 Bloqueado por prerrequisito no aprobado</div>`
+      ? `<div class="menu-item menu-item--muted" style="cursor:default;opacity:.5;font-size:10px">🔒 Disponible cuando apruebes los prerrequisitos</div>`
       : '',
   ].filter(Boolean).join('');
 

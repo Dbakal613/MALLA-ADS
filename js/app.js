@@ -21,7 +21,7 @@ import { openContextMenu, closeContextMenu } from './context-menu.js';
 import { onDragStart, onDragStartProjected, onDragEnd, onDragOver, onDragLeave, onDrop } from './drag-drop.js';
 import { openConfig, closeConfig, applyConfig, handleConfigClick, updateTopbarBadge, handleReset, doReset } from './config.js';
 import { showToast } from './toast.js';
-import { initOnboarding, closeOnboarding } from './onboarding.js';
+import { initOnboarding, closeOnboarding, getUserName, getUserPace, saveUser } from './onboarding.js';
 
 // ── Module-level state snapshots ─────────────────────────────────────────────
 // Kept here so action handlers can reference the last-rendered values without
@@ -42,6 +42,14 @@ function render() {
     console.error('render:', e);
     showToast('Error al procesar la malla: ' + e.message, 'error');
   }
+}
+
+function updateTopbarGreeting() {
+  const name = getUserName();
+  const el   = document.getElementById('topbar-user-greeting');
+  if (!el) return;
+  el.textContent = name ? `${name} ·` : '';
+  el.style.display = name ? '' : 'none';
 }
 
 function _render() {
@@ -79,6 +87,7 @@ function _render() {
 
   attachDragListeners();
   applySearchFilter(lastSearchQuery);
+  updateTopbarGreeting();
 }
 
 // ── Drag event attachment (runs after each render) ───────────────────────────
@@ -240,6 +249,41 @@ function handleClick(event) {
     case 'close-config':
       closeConfig();
       break;
+
+    // ── Welcome screen ────────────────────────────────────────────────────────
+    case 'select-pace':
+      document.querySelectorAll('.welcome-pace-btn').forEach(b => b.classList.remove('welcome-pace-btn--selected'));
+      el.classList.add('welcome-pace-btn--selected');
+      break;
+
+    case 'save-welcome': {
+      const nameInput = document.getElementById('welcome-name-input');
+      const wName = nameInput?.value?.trim() ?? '';
+      if (!wName) { nameInput?.focus(); showToast('Escribe tu nombre para comenzar.', 'warning'); break; }
+      const paceBtn = document.querySelector('.welcome-pace-btn--selected');
+      const wPace   = paceBtn?.dataset?.pace ?? 'equilibrada';
+      saveUser(wName, wPace);
+      document.getElementById('welcome-modal').classList.remove('modal-overlay--open');
+      if (!localStorage.getItem('malla-onboarding-v1')) {
+        document.getElementById('onboarding-modal').classList.add('modal-overlay--open');
+      }
+      updateTopbarBadge();
+      render();
+      showToast(`¡Bienvenido/a, ${wName}! Todo listo para empezar.`, 'success');
+      break;
+    }
+
+    case 'change-name': {
+      const curName = getUserName();
+      const newName = prompt('¿Cómo quieres llamarte?', curName);
+      if (newName === null) break;
+      const trimmed = newName.trim();
+      if (!trimmed) { showToast('El nombre no puede estar vacío.', 'warning'); break; }
+      saveUser(trimmed, getUserPace() || 'equilibrada');
+      render();
+      showToast(`Nombre actualizado: ${trimmed}`, 'success');
+      break;
+    }
 
     // ── Onboarding ────────────────────────────────────────────────────────────
     case 'open-onboarding':
@@ -416,6 +460,10 @@ function downloadProjection() {
 
 render();
 initOnboarding();
+
+document.getElementById('welcome-name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.querySelector('[data-action="save-welcome"]')?.click();
+});
 
 document.getElementById('topbar-search').addEventListener('input', e => {
   lastSearchQuery = e.target.value;
