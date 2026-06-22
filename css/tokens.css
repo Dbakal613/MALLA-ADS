@@ -1,26 +1,27 @@
 :root {
-  --bg:           #F5F4F0;
-  --surface:      #FFF;
-  --surface-2:    #EFEDE8;
+  --bg:           #F7F6F2;
+  --surface:      #FFFFFF;
+  --surface-2:    #F1EFE9;
   --surface-3:    #E8E5DF;
-  --border:       #E0DDD6;
-  --border-2:     #C5C1B8;
-  --text:         #18170F;
-  --text-2:       #68655C;
-  --text-3:       #9E9A93;
+  --border:       #E2DFD8;
+  --border-2:     #C8C4BC;
+  --text:         #1C1A12;
+  --text-2:       #6E6B62;
+  --text-3:       #A39F97;
 
   /* Indigo — warmer than institutional blue */
   --blue:         #4F46E5;
   --blue-bg:      #EEF2FF;
   --blue-border:  #C7D2FE;
 
-  --green:        #057A55;
-  --green-bg:     #ECFDF3;
+  --green:        #047857;
+  --green-bg:     #ECFDF5;
   --green-border: #6EE7B7;
 
-  --red:          #C81E1E;
-  --red-bg:       #FDF2F2;
-  --red-border:   #FCA5A5;
+  /* Red — softer, less aggressive */
+  --red:          #DC2626;
+  --red-bg:       #FEF2F2;
+  --red-border:   #FECACA;
 
   --amber:        #92400E;
   --amber-bg:     #FFFBEB;
@@ -34,12 +35,12 @@
   --purple-bg:    #F5F3FF;
   --purple-border:#C4B5FD;
 
-  --gray-bg:      #F1F0EC;
-  --gray-border:  #D1CEC7;
+  --gray-bg:      #F3F2EE;
+  --gray-border:  #D4D0C9;
 
-  --shadow:       0 2px 8px rgba(0,0,0,.07);
-  --shadow-md:    0 8px 24px rgba(0,0,0,.12);
-  --shadow-lg:    0 20px 48px rgba(0,0,0,.18);
+  --shadow:       0 1px 3px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+  --shadow-md:    0 6px 20px rgba(0,0,0,.10);
+  --shadow-lg:    0 16px 48px rgba(0,0,0,.16);
 
   --radius-sm:    6px;
   --radius-md:    10px;

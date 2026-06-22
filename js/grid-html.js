@@ -10,6 +10,18 @@ import { getCourseById, getSemesterParity, getEffectiveSemester } from './planne
 const semesterLabel = (semNumber) =>
   getSemesterParity(semNumber) === 'first' ? 'Mar–Jul' : 'Ago–Dic';
 
+const SEM_CONTEXT = {
+  1: 'Base inicial',
+  2: 'Fundamentos',
+  3: 'Consolidación',
+  4: 'Desarrollo',
+  5: 'Avance intermedio',
+  6: 'Especialización',
+  7: 'Tramo avanzado',
+  8: 'Tramo final',
+  9: 'Práctica prof.',
+};
+
 /** Returns the CSS fill class for the credit track bar. */
 const creditsFillClass = (credits, cap = MAX_CREDITS_PER_SEMESTER) => {
   if (credits > cap) return 'credits-fill--over';
@@ -227,7 +239,7 @@ export function buildGridHTML({ approved, failed, notTaken, blocked, recommended
             <span class="sem-number">Semestre ${s}</span>
             ${semBadge}
           </div>
-          <div class="sem-subtitle">${SEMESTER_YEARS[s - 1] ?? ''} · ${semesterLabel(s)}</div>
+          <div class="sem-subtitle">${SEM_CONTEXT[s] ? `<strong style="color:var(--text-2);font-weight:600">${SEM_CONTEXT[s]}</strong> · ` : ''}${SEMESTER_YEARS[s - 1] ?? ''} · ${semesterLabel(s)}</div>
           <div class="credits-track">
             <div class="credits-fill ${fillClass}" style="width:${Math.min(100, pct)}%"></div>
           </div>

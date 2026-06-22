@@ -1,14 +1,14 @@
 /* ── Buttons ── */
 .btn {
   font-size: 11px;
-  padding: 5px 11px;
-  border-radius: 6px;
+  padding: 7px 13px;
+  border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-2);
   cursor: pointer;
   font-family: inherit;
-  transition: all .12s;
+  transition: all .15s;
   white-space: nowrap;
 }
 .btn:hover { background: var(--surface-2); color: var(--text); border-color: var(--border-2); }
@@ -84,15 +84,16 @@
 
 /* ── Semester column ── */
 .sem-col {
-  width: 148px;
+  width: 164px;
   flex-shrink: 0;
-  border-radius: 9px;
+  border-radius: 11px;
   border: 1px solid var(--border);
   background: var(--surface);
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow);
   transition: border-color .15s, box-shadow .15s;
+  animation: fadeUp .22s ease both;
 }
 .sem-col--current   { border: 2px solid var(--blue);   box-shadow: 0 0 0 3px var(--blue-bg); }
 .sem-col--next      { border: 2px solid var(--amber);  box-shadow: 0 0 0 3px var(--amber-bg); }
@@ -101,10 +102,10 @@
 .sem-col--drag-over { border: 2px dashed var(--orange); background: var(--orange-bg); }
 
 .sem-header {
-  padding: 8px 9px 0;
+  padding: 10px 10px 0;
   border-bottom: 1px solid var(--border);
   background: var(--surface-2);
-  border-radius: 9px 9px 0 0;
+  border-radius: 11px 11px 0 0;
 }
 
 .sem-header-top {
@@ -172,11 +173,11 @@
 .mark-semester-btn--on:hover { opacity: 1; }
 
 .drop-zone {
-  padding: 6px 6px 7px;
-  min-height: 44px;
+  padding: 7px 7px 9px;
+  min-height: 48px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .drop-zone-divider {
@@ -216,7 +217,7 @@
 .course-card--convalidado { background: #ECFEFF; border-color: #67E8F9; border-left: 3px solid #0891B2; }
 
 .course-name {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.35;
   color: var(--text);
@@ -304,8 +305,8 @@
 .strategy-row { display: flex; gap: 4px; }
 .strategy-option {
   flex: 1;
-  padding: 5px 3px;
-  border-radius: 6px;
+  padding: 6px 3px;
+  border-radius: 7px;
   border: 1px solid var(--border);
   background: var(--surface);
   font-family: inherit;
@@ -313,7 +314,7 @@
   font-weight: 600;
   cursor: pointer;
   text-align: center;
-  transition: all .12s;
+  transition: all .18s ease;
   line-height: 1.4;
 }
 .strategy-option:hover { border-color: var(--border-2); }
@@ -1072,6 +1073,12 @@
   .welcome-sem-btn--practica { grid-column: 1 / -1; }
 }
 
+/* ── Entrance animation ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Smooth card transitions ── */
 .course-card {
   transition: transform .13s ease, box-shadow .13s ease, border-color .15s, background-color .22s ease, opacity .2s;
@@ -1084,7 +1091,7 @@
 
 /* ── Responsive component adjustments ── */
 @media (max-width: 680px) {
-  .sem-col { width: 136px; }
+  .sem-col { width: 148px; }
 
   .context-menu {
     /* On mobile, anchor to bottom of screen instead of next to card */
