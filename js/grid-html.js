@@ -232,8 +232,22 @@ export function buildGridHTML({ approved, failed, notTaken, blocked, recommended
             <div class="credits-fill ${fillClass}" style="width:${Math.min(100, pct)}%"></div>
           </div>
           ${creditLabel}
-          ${!isPracticum ? `<button class="mark-semester-btn" data-action="mark-semester" data-sem="${s}">✓ Aprobar sem.</button>` : ''}
-          ${(isCurrent || !currentSem) && !isPracticum ? `<button class="mark-semester-btn" style="margin-top:3px;background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)" data-action="mark-semester-studying" data-sem="${s}">📖 Cursando ahora</button>` : ''}
+          ${!isPracticum ? (() => {
+              const nonPracIds = ids.filter(id => { const c = getCourseById(id); return c && !c.isPracticum; });
+              const allApproved = nonPracIds.length > 0 && nonPracIds.every(id => ['aprobado','adelantado','eximido','convalidado'].includes(getCourseStatus(id)));
+              return `<button class="mark-semester-btn${allApproved ? ' mark-semester-btn--on' : ''}" data-action="mark-semester" data-sem="${s}">${allApproved ? '↩ Desaprobar sem.' : '✓ Aprobar sem.'}</button>`;
+            })() : ''}
+          ${(isCurrent || !currentSem) && !isPracticum ? (() => {
+              const eligible = ids.filter(id => {
+                const c = getCourseById(id); if (!c || c.isPracticum) return false;
+                const st = getCourseStatus(id);
+                if (['aprobado','adelantado','eximido','convalidado'].includes(st)) return false;
+                if (blocked.has(id) && st === 'pendiente') return false;
+                return true;
+              });
+              const allStudying = eligible.length > 0 && eligible.every(id => getCourseStatus(id) === 'cursando');
+              return `<button class="mark-semester-btn mark-semester-btn--studying${allStudying ? ' mark-semester-btn--on' : ''}" data-action="mark-semester-studying" data-sem="${s}">${allStudying ? '↩ Dejar de cursar' : '📖 Cursando ahora'}</button>`;
+            })() : ''}
           ${currentSem && !isPast && !isPracticum ? `<button class="mark-semester-btn" style="margin-top:3px;${semExtensions.has(s) ? 'background:#F0FDF4;color:#166534;border-color:#86EFAC' : 'background:var(--surface-2);color:var(--text-2)'}" data-action="extend-semester" data-sem="${s}">${semExtensions.has(s) ? '34 SCT ✓' : '+1 SCT'}</button>` : ''}
         </div>
         <div class="drop-zone" id="drop-${s}">`;

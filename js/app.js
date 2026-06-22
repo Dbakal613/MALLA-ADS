@@ -187,12 +187,17 @@ function handleClick(event) {
       event.stopPropagation();
       const ids = lastSemMap[sem] ?? [];
       if (!ids.length) { showToast('No hay ramos en este semestre.', 'warning'); break; }
-      ids.forEach(id => {
-        const c = getCourseById(id);
-        if (!c || c.isPracticum) return;
-        setCourseStatus(id, 'aprobado');
-      });
-      showToast(`Semestre ${sem} marcado como aprobado. Ahora puedes editar ramos individuales.`, 'success');
+      const nonPracIds = ids.filter(id => { const c = getCourseById(id); return c && !c.isPracticum; });
+      const allApproved = nonPracIds.length > 0 && nonPracIds.every(id =>
+        ['aprobado', 'adelantado', 'eximido', 'convalidado'].includes(getCourseStatus(id))
+      );
+      if (allApproved) {
+        nonPracIds.forEach(id => setCourseStatus(id, 'pendiente'));
+        showToast(`Semestre ${sem} revertido a pendiente.`, 'success');
+      } else {
+        nonPracIds.forEach(id => setCourseStatus(id, 'aprobado'));
+        showToast(`Semestre ${sem} marcado como aprobado. Puedes editar ramos individualmente.`, 'success');
+      }
       render();
       break;
     }
@@ -202,15 +207,22 @@ function handleClick(event) {
       const ids = lastSemMap[sem] ?? [];
       if (!ids.length) { showToast('No hay ramos en este semestre.', 'warning'); break; }
       const blockedSet = getBlocked();
-      ids.forEach(id => {
+      const eligible = ids.filter(id => {
         const c = getCourseById(id);
-        if (!c || c.isPracticum) return;
+        if (!c || c.isPracticum) return false;
         const st = getCourseStatus(id);
-        if (['aprobado', 'adelantado', 'eximido', 'convalidado'].includes(st)) return;
-        if (blockedSet.has(id) && st === 'pendiente') return;
-        setCourseStatus(id, 'cursando');
+        if (['aprobado', 'adelantado', 'eximido', 'convalidado'].includes(st)) return false;
+        if (blockedSet.has(id) && st === 'pendiente') return false;
+        return true;
       });
-      showToast(`Ramos disponibles del semestre ${sem} marcados como "cursando ahora".`, 'success');
+      const allStudying = eligible.length > 0 && eligible.every(id => getCourseStatus(id) === 'cursando');
+      if (allStudying) {
+        eligible.forEach(id => setCourseStatus(id, 'pendiente'));
+        showToast(`Semestre ${sem}: ramos desmarcados como "cursando".`, 'success');
+      } else {
+        eligible.forEach(id => setCourseStatus(id, 'cursando'));
+        showToast(`Ramos disponibles del semestre ${sem} marcados como "cursando ahora".`, 'success');
+      }
       render();
       break;
     }

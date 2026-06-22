@@ -152,6 +152,10 @@
   text-align: center;
 }
 .mark-semester-btn:hover { background: var(--green-border); color: #fff; }
+.mark-semester-btn--studying { color: var(--blue); background: var(--blue-bg); border-color: var(--blue-border); }
+.mark-semester-btn--studying:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+.mark-semester-btn--on { opacity: .65; }
+.mark-semester-btn--on:hover { opacity: 1; }
 
 .drop-zone {
   padding: 6px 6px 7px;
