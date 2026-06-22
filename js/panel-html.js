@@ -78,9 +78,6 @@ export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, 
   if (!currentSem) return buildProgressSection(name, approved, studying) + buildContextualMessageCard(ctxMsg);
 
   const nextSem        = currentSem + 1;
-  const approvedSCT    = COURSES.filter(c => approved.has(c.id)).reduce((sum, c) => sum + c.credits, 0);
-  const studyingSCT    = studying ? COURSES.filter(c => studying.has(c.id)).reduce((sum, c) => sum + c.credits, 0) : 0;
-  const progressPct    = Math.round(approvedSCT / TOTAL_CREDITS * 100);
   const recommendedArr = COURSES.filter(c => recommended.has(c.id));
   const blockedArr     = COURSES.filter(c => blocked.has(c.id) && !approved.has(c.id));
   const postponedArr   = COURSES.filter(c => postponed.has(c.id));
@@ -105,7 +102,8 @@ function buildProgressSection(name, approved, studying) {
   const approvedCount = approved.size;
   const studyingCount = studying ? studying.size : 0;
   const pendingCount  = Math.max(0, total - approvedCount - studyingCount);
-  const pct           = Math.round(approvedCount / total * 100);
+  const approvedSCT   = COURSES.filter(c => approved.has(c.id)).reduce((sum, c) => sum + c.credits, 0);
+  const pct           = Math.round(approvedSCT / TOTAL_CREDITS * 100);
 
   const intro     = name
     ? `<strong>${name}</strong>, este es tu avance hasta ahora.`

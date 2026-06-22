@@ -13,12 +13,13 @@
  * @returns {{ type: string, title: string, message: string }}
  */
 
-import { COURSES } from './data.js';
+import { COURSES, TOTAL_CREDITS } from './data.js';
 
 const PACE_MAX_SCT = { rapida: 33, equilibrada: 28, tranquila: 26 };
 
 export function getContextualAcademicMessage({ name, preferredPace, approved, failed, notTaken, plan, currentSem }) {
-  const pct     = Math.round((approved?.size ?? 0) / COURSES.length * 100);
+  const approvedSCT = COURSES.filter(c => approved?.has(c.id)).reduce((sum, c) => sum + c.credits, 0);
+  const pct         = Math.round(approvedSCT / TOTAL_CREDITS * 100);
   const delayed = (failed?.size ?? 0) + (notTaken?.size ?? 0);
   const pace    = preferredPace || 'equilibrada';
   const n       = name?.trim() || '';
