@@ -22,47 +22,41 @@ export function openContextMenu(event, courseId) {
   const prereqNames = course.prerequisites.map(p => getCourseById(p)?.name ?? p);
   const unlocks  = COURSES.filter(c => c.prerequisites.includes(courseId)).map(c => c.name);
 
-  let meta = `${course.credits} SCT · Sem ${getEffectiveSemester(courseId)} · ${course.area}`;
-  if (prereqNames.length) meta += `<br>Requiere: ${prereqNames.join(', ')}`;
-  if (unlocks.length) {
-    const shown = unlocks.slice(0, 3).join(', ');
-    const extra = unlocks.length > 3 ? ` +${unlocks.length - 3} más` : '';
-    meta += `<br><span style="color:var(--green)">🔓 Habilita: ${shown}${extra}</span>`;
-  }
-  if (isBlocked) meta += `<br><span style="color:var(--red)">⏳ Necesitas aprobar los prerrequisitos primero</span>`;
+  const meta = `${course.credits} SCT · Sem ${getEffectiveSemester(courseId)} · ${course.area}`;
+  const description = buildDescription(course, status, isBlocked, prereqNames, unlocks);
 
   const isApproved = ['aprobado', 'adelantado', 'eximido', 'convalidado'].includes(status);
 
   const items = [
     !isApproved
-      ? menuButton('set-status', courseId, 'aprobado', 'menu-item--approved', '✓ Marcar como aprobado')
+      ? menuButton('set-status', courseId, 'aprobado', 'menu-item--approved', '✓ Ya lo aprobé')
       : '',
     status !== 'cursando' && !course.isPracticum
-      ? menuButton('set-status', courseId, 'cursando', '', '📖 Cursando ahora', 'color:var(--blue);font-weight:500')
+      ? menuButton('set-status', courseId, 'cursando', '', '📖 Lo estoy cursando ahora', 'color:var(--blue);font-weight:500')
       : '',
     status !== 'adelantado' && !course.isPracticum
-      ? menuButton('set-status', courseId, 'adelantado', '', '⚡ Aprobado por adelantado', 'color:#4338CA')
+      ? menuButton('set-status', courseId, 'adelantado', '', '⚡ Lo tomé por adelantado', 'color:#4338CA')
       : '',
     EXEMPTABLE_COURSE_IDS.has(courseId) && status !== 'eximido'
-      ? menuButton('set-status', courseId, 'eximido', '', '⊘ Marcar como eximido', 'color:#166534')
+      ? menuButton('set-status', courseId, 'eximido', '', '⊘ Estoy eximido de este ramo', 'color:#166534')
       : '',
     status !== 'convalidado' && !course.isPracticum
-      ? menuButton('set-status', courseId, 'convalidado', '', '⇌ Convalidado de otra carrera', 'color:#0891B2')
+      ? menuButton('set-status', courseId, 'convalidado', '', '⇌ Lo convalidé de otra carrera', 'color:#0891B2')
       : '',
     status !== 'reprobado' && !isBlocked && !course.isPracticum
-      ? menuButton('set-status', courseId, 'reprobado', 'menu-item--failed', '✗ Reprobado')
+      ? menuButton('set-status', courseId, 'reprobado', 'menu-item--failed', '↩ Lo reprobé')
       : '',
     status !== 'no-tomado' && !isBlocked && !course.isPracticum
-      ? menuButton('set-status', courseId, 'no-tomado', 'menu-item--not-taken', '⏭ No tomado (atrasado)')
+      ? menuButton('set-status', courseId, 'no-tomado', 'menu-item--not-taken', '⏭ No lo tomé este semestre')
       : '',
     status !== 'pendiente'
-      ? menuButton('set-status', courseId, 'pendiente', 'menu-item--muted', '↩ Restablecer a pendiente')
+      ? menuButton('set-status', courseId, 'pendiente', 'menu-item--muted', '← Aún no lo he tomado')
       : '',
     status === 'pendiente' && !isBlocked && !course.isPracticum && !postponed
-      ? menuButton('postpone', courseId, '', 'menu-item--muted', '⏸ Posponer este semestre')
+      ? menuButton('postpone', courseId, '', 'menu-item--muted', '⏸ Dejarlo para después')
       : '',
     postponed
-      ? menuButton('resume', courseId, '', 'menu-item--muted', '▶ Retomar en el plan')
+      ? menuButton('resume', courseId, '', 'menu-item--muted', '▶ Retomarlo en el plan')
       : '',
     isBlocked
       ? `<div class="menu-item menu-item--muted" style="cursor:default;opacity:.5;font-size:10px">🔒 Disponible cuando apruebes los prerrequisitos</div>`
@@ -74,6 +68,7 @@ export function openContextMenu(event, courseId) {
     <div class="context-menu-header">
       <div class="context-menu-title">${course.name}</div>
       <div class="context-menu-meta">${meta}</div>
+      ${description ? `<div class="context-menu-description">${description}</div>` : ''}
     </div>
     <div class="menu-divider"></div>
     ${items}
@@ -97,6 +92,28 @@ function menuButton(action, courseId, status, extraClass, label, style = '') {
             ${statusAttr}>
       ${label}
     </button>`;
+}
+
+function buildDescription(course, status, isBlocked, prereqNames, unlocks) {
+  if (course.isPracticum) {
+    return 'Corresponde a la práctica profesional obligatoria de la carrera.';
+  }
+
+  const parts = [];
+
+  if (isBlocked && prereqNames.length) {
+    parts.push(`Para tomarlo necesitas aprobar primero: ${prereqNames.join(', ')}.`);
+  } else if (prereqNames.length === 0 && !['aprobado','adelantado','eximido','convalidado'].includes(status)) {
+    parts.push('No tiene prerrequisitos — puedes tomarlo en cualquier momento.');
+  }
+
+  if (unlocks.length) {
+    const shown = unlocks.slice(0, 2).join(' y ');
+    const extra = unlocks.length > 2 ? ` (+${unlocks.length - 2} más)` : '';
+    parts.push(`Aprobarlo te habilita: ${shown}${extra}.`);
+  }
+
+  return parts.join(' ');
 }
 
 function positionMenu(menu, event) {

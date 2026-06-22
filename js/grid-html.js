@@ -45,19 +45,19 @@ function statusDotClass(status, isRecommended) {
 
 function buildStatusChips(status, isBlocked, isPlannedBlocked, isRecommended, isPostponed) {
   const chips = [];
-  if (isRecommended)   chips.push(`<span class="course-chip course-chip--recommended">✦ rec.</span>`);
-  if (isBlocked && !isPlannedBlocked) chips.push(`<span class="course-chip course-chip--blocked">bloqueado</span>`);
+  if (isRecommended)   chips.push(`<span class="course-chip course-chip--recommended">✦ buena opción</span>`);
+  if (isBlocked && !isPlannedBlocked) chips.push(`<span class="course-chip course-chip--blocked">falta requisito</span>`);
   if (isPlannedBlocked) chips.push(`
-    <span class="course-chip course-chip--blocked">bloqueado</span>
+    <span class="course-chip course-chip--blocked">falta requisito</span>
     <span class="course-chip" style="background:#F0FDF4;color:#166534;border:1px solid #86EFAC;margin-left:2px">✓ programado</span>`);
   if (isPostponed)     chips.push(`<span class="course-chip course-chip--postponed">pospuesto</span>`);
-  if (status === 'aprobado')   chips.push(`<span class="course-chip course-chip--approved">✓ aprobado</span>`);
+  if (status === 'aprobado')   chips.push(`<span class="course-chip course-chip--approved">✓ ya aprobado</span>`);
   if (status === 'adelantado')   chips.push(`<span class="course-chip" style="background:#EEF2FF;color:#4338CA;border:1px solid #A5B4FC">⚡ adelantado</span>`);
   if (status === 'eximido')      chips.push(`<span class="course-chip" style="background:#F0FDF4;color:#166534;border:1px solid #86EFAC">⊘ eximido</span>`);
   if (status === 'convalidado')  chips.push(`<span class="course-chip" style="background:#ECFEFF;color:#0891B2;border:1px solid #67E8F9">⇌ convalidado</span>`);
-  if (status === 'cursando')   chips.push(`<span class="course-chip" style="background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)">📖 cursando</span>`);
-  if (status === 'reprobado')  chips.push(`<span class="course-chip course-chip--failed">✗ reprobado</span>`);
-  if (status === 'no-tomado')  chips.push(`<span class="course-chip course-chip--not-taken">no tomado</span>`);
+  if (status === 'cursando')   chips.push(`<span class="course-chip" style="background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)">📖 cursando ahora</span>`);
+  if (status === 'reprobado')  chips.push(`<span class="course-chip course-chip--failed">↩ retomar</span>`);
+  if (status === 'no-tomado')  chips.push(`<span class="course-chip course-chip--not-taken">pendiente</span>`);
   return chips.join('');
 }
 

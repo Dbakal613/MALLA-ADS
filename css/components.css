@@ -174,71 +174,76 @@
 
 /* ── Course card ── */
 .course-card {
-  border-radius: 6px;
-  padding: 6px 8px;
+  border-radius: 10px;
+  padding: 9px 11px;
   border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
   background: var(--surface);
   position: relative;
   user-select: none;
-  transition: all .12s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, opacity .18s ease, background .18s ease;
 }
 .course-card[draggable="true"]       { cursor: grab; }
-.course-card[draggable="true"]:hover { border-color: var(--border-2); transform: translateY(-1px); box-shadow: var(--shadow); }
+.course-card[draggable="true"]:hover { border-color: var(--border-2); transform: translateY(-2px); box-shadow: 0 5px 16px rgba(0,0,0,.10); }
 .course-card.dragging                { opacity: .25; }
 
-.course-card--approved    { background: var(--green-bg);  border-color: var(--green-border); }
-.course-card--failed      { background: var(--red-bg);    border-color: var(--red-border); }
-.course-card--not-taken   { background: var(--orange-bg); border-color: var(--orange-border); }
-.course-card--blocked     { opacity: .35; cursor: not-allowed; }
-.course-card--blocked:hover { transform: none; box-shadow: none; border-color: var(--border); }
-.course-card--recommended { background: var(--amber-bg); border: 1.5px solid var(--amber-border); }
-.course-card--studying    { background: var(--blue-bg);  border: 1.5px solid var(--blue-border); }
-.course-card--postponed   { background: var(--gray-bg);  border: 1px dashed var(--gray-border); }
-.course-card--practicum   { background: var(--purple-bg); border-color: var(--purple-border); }
-.course-card--repeated    { border-style: dashed; border-color: var(--red-border); background: #FFF5F5; }
-.course-card--projected   { border-style: dashed; border-color: var(--blue-border); background: var(--blue-bg); opacity: .82; cursor: grab; }
-.course-card--convalidado { background: #ECFEFF; border-color: #67E8F9; }
+.course-card--approved    { background: var(--green-bg);  border-color: var(--green-border);  border-left: 3px solid var(--green); }
+.course-card--failed      { background: var(--red-bg);    border-color: var(--red-border);    border-left: 3px solid var(--red); }
+.course-card--not-taken   { background: var(--orange-bg); border-color: var(--orange-border); border-left: 3px solid var(--orange); }
+.course-card--blocked     { opacity: .45; cursor: not-allowed; border-left-color: var(--border); }
+.course-card--blocked:hover { transform: none; box-shadow: 0 1px 3px rgba(0,0,0,.05); border-color: var(--border); }
+.course-card--recommended { background: var(--amber-bg); border: 1px solid var(--amber-border); border-left: 3px solid #D97706; }
+.course-card--studying    { background: var(--blue-bg);  border: 1px solid var(--blue-border); border-left: 3px solid var(--blue); }
+.course-card--postponed   { background: var(--gray-bg);  border: 1px dashed var(--gray-border); border-left: 3px solid var(--border-2); }
+.course-card--practicum   { background: var(--purple-bg); border-color: var(--purple-border); border-left: 3px solid var(--purple); }
+.course-card--repeated    { border-style: dashed; border-color: var(--red-border); background: #FFF5F5; border-left: 3px solid var(--red); }
+.course-card--projected   { border-style: dashed; border-color: var(--blue-border); background: var(--blue-bg); opacity: .82; cursor: grab; border-left: 3px solid var(--blue); }
+.course-card--convalidado { background: #ECFEFF; border-color: #67E8F9; border-left: 3px solid #0891B2; }
 
 .course-name {
-  font-size: 10px;
-  font-weight: 500;
-  line-height: 1.3;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
   color: var(--text);
+  margin-bottom: 5px;
 }
-.course-card--approved .course-name  { color: var(--green); }
-.course-card--failed .course-name    { color: var(--red); }
-.course-card--not-taken .course-name { color: var(--orange); }
-.course-card--blocked .course-name   { color: var(--text-3); }
-.course-card--practicum .course-name { color: var(--purple); }
-.course-card--postponed .course-name { color: var(--text-2); }
-.course-card--studying .course-name  { color: var(--blue); }
-.course-card--projected .course-name    { color: var(--blue); }
-.course-card--convalidado .course-name  { color: #0891B2; }
+.course-card--approved .course-name    { color: #166534; }
+.course-card--failed .course-name      { color: var(--red); }
+.course-card--not-taken .course-name   { color: var(--orange); }
+.course-card--blocked .course-name     { color: var(--text-3); }
+.course-card--practicum .course-name   { color: var(--purple); }
+.course-card--postponed .course-name   { color: var(--text-2); }
+.course-card--studying .course-name    { color: var(--blue); }
+.course-card--projected .course-name   { color: var(--blue); }
+.course-card--convalidado .course-name { color: #0891B2; }
 
-.course-meta { display: flex; align-items: center; gap: 3px; margin-top: 3px; flex-wrap: wrap; }
+.course-meta { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 
-.course-credits { font-size: 9px; font-family: 'DM Mono', monospace; color: var(--text-3); }
+.course-credits { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text-3); }
 
 .course-chip {
-  font-size: 8px;
-  padding: 1px 4px;
-  border-radius: 3px;
-  font-weight: 500;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-weight: 600;
+  letter-spacing: .01em;
 }
-.course-chip--recommended { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
-.course-chip--blocked     { background: var(--surface-2); color: var(--text-3); }
-.course-chip--approved    { background: var(--green-bg); color: var(--green); }
-.course-chip--failed      { background: var(--red-bg); color: var(--red); }
+.course-chip--recommended { background: var(--amber-bg); color: #92400E; border: 1px solid var(--amber-border); }
+.course-chip--blocked     { background: var(--surface-2); color: var(--text-3); border: 1px solid var(--border); }
+.course-chip--approved    { background: var(--green-bg); color: #166534; border: 1px solid var(--green-border); }
+.course-chip--failed      { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
 .course-chip--not-taken   { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
-.course-chip--postponed   { background: var(--gray-bg); color: var(--text-2); }
+.course-chip--postponed   { background: var(--gray-bg); color: var(--text-2); border: 1px solid var(--border); }
 
 .status-dot {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 6px;
-  height: 6px;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.6);
 }
 .status-dot--approved     { background: var(--green); }
 .status-dot--failed       { background: var(--red); }
@@ -393,6 +398,7 @@
 .context-menu-header { padding: 7px 11px 5px; border-bottom: 1px solid var(--border); margin-bottom: 3px; }
 .context-menu-title  { font-size: 12px; font-weight: 600; line-height: 1.3; }
 .context-menu-meta   { font-size: 10px; color: var(--text-2); margin-top: 2px; line-height: 1.4; }
+.context-menu-description { font-size: 10px; color: var(--text-2); margin-top: 5px; line-height: 1.5; padding: 5px 8px; background: var(--surface-2); border-radius: 6px; }
 
 .menu-item {
   display: flex;
