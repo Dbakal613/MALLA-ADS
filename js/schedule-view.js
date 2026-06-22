@@ -1,7 +1,7 @@
 import { SCHEDULE_2S_2026, blocksOverlap } from './schedule-data.js';
 import { COURSES, OPTATIVO_IDS } from './data.js';
 import { safeCalculatePlan, getBlocked } from './planner.js';
-import { getStrategy } from './state.js';
+import { getStrategy, getCurrentSemesterNumber } from './state.js';
 import { showToast } from './toast.js';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -90,6 +90,36 @@ function _load() {
     _selected = [];
     _usedColorIdxs = new Set();
   }
+}
+
+// ── Pre-populate from projection ──────────────────────────────────────────────
+
+function _prePopulateFromProjection() {
+  const currentSem = getCurrentSemesterNumber();
+  if (!currentSem) return;
+
+  const nextSem = currentSem + 1;
+  const { plan } = safeCalculatePlan();
+  const nextCourseIds = plan[nextSem] ?? [];
+  if (!nextCourseIds.length) return;
+
+  nextCourseIds.forEach(courseId => {
+    if (OPTATIVO_IDS.has(courseId)) return; // user picks specific offering
+
+    const entries = SCHEDULE_2S_2026.filter(e => e.courseId === courseId);
+    if (!entries.length) return; // not offered this semester
+
+    const entry = entries[0]; // first section if multiple exist
+    const key   = _selKey(entry);
+    if (_selected.some(s => s.selKey === key)) return;
+    if (_selected.some(s => s.entry.courseId === courseId)) return;
+
+    const colorIdx = _nextColorIdx();
+    _selected.push({ entry, colorIdx, selKey: key });
+    _usedColorIdxs.add(colorIdx);
+  });
+
+  _save();
 }
 
 // ── Conflict detection ─────────────────────────────────────────────────────────
@@ -468,7 +498,11 @@ function _handleScheduleClick(e) {
 // ── Public API ─────────────────────────────────────────────────────────────────
 
 export function initScheduleView() {
+  const firstOpen = localStorage.getItem(STORAGE_KEY) === null;
   _load();
+  if (firstOpen) {
+    _prePopulateFromProjection();
+  }
   if (!_listenerAttached) {
     document.addEventListener('click', _handleScheduleClick);
     _listenerAttached = true;
