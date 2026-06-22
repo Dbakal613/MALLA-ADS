@@ -28,12 +28,20 @@ const PACE_CTX = {
   },
 };
 
-const MILESTONES = [
-  { min: 90, icon: '🏁', msg: 'Casi en la meta — la práctica profesional se asoma.' },
-  { min: 75, icon: '🌟', msg: 'Recta final. Solo queda el último tramo.' },
-  { min: 50, icon: '⭐', msg: '¡Mitad de la carrera completada!' },
-  { min: 25, icon: '✨', msg: 'Construyendo bases sólidas.' },
+const ROUTE_MILESTONES = [
+  { max: 25,  icon: '🌱', text: 'Construir una buena base para los próximos semestres.' },
+  { max: 50,  icon: '📚', text: 'Consolidar los ramos centrales de la carrera.' },
+  { max: 75,  icon: '🎯', text: 'Avanzar hacia los cursos más específicos.' },
+  { max: 99,  icon: '🏁', text: 'Prepararte para el tramo final.' },
+  { max: 100, icon: '🎓', text: '¡Ruta completada!' },
 ];
+
+function getMotivation(pct) {
+  if (pct >= 100) return 'Felicitaciones, completaste la ruta.';
+  if (pct >= 76)  return 'Estás cada vez más cerca del final.';
+  if (pct >= 26)  return 'Ya tienes una parte importante del camino avanzado.';
+  return 'Lo importante es ordenar bien el punto de partida.';
+}
 
 function estimateGraduationDate(maxPlanSem, currentSem) {
   const semsFromNow = maxPlanSem - currentSem;
@@ -77,7 +85,7 @@ export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, 
   const recommendedSCT = recommendedArr.reduce((sum, c) => sum + c.credits, 0);
 
   return [
-    buildProgressSection(name, approved, failed, notTaken, blockedArr, approvedSCT, studyingSCT, progressPct),
+    buildProgressSection(name, approved, studying),
     buildRecommendedSection(recommendedArr, recommendedSCT, nextSem, strategy),
     buildStrategySection(strategy),
     buildPaceAdvice(strategy),
@@ -102,40 +110,51 @@ function buildUnconfiguredPanel(name) {
     </div>`;
 }
 
-function buildProgressSection(name, approved, failed, notTaken, blockedArr, approvedSCT, studyingSCT, pct) {
-  const delayed        = failed.size + notTaken.size;
-  const accumulatedSCT = approvedSCT + studyingSCT;
-  const greeting       = name ? `Hola, <strong>${name}</strong> 👋` : 'Tu avance';
+function buildProgressSection(name, approved, studying) {
+  const total         = COURSES.length;
+  const approvedCount = approved.size;
+  const studyingCount = studying ? studying.size : 0;
+  const pendingCount  = Math.max(0, total - approvedCount - studyingCount);
+  const pct           = Math.round(approvedCount / total * 100);
 
-  const milestone      = MILESTONES.find(m => pct >= m.min);
-  const milestoneHtml  = milestone
-    ? `<div style="margin-top:7px;padding:6px 9px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:8px;font-size:10px;color:var(--amber);line-height:1.4">${milestone.icon} ${milestone.msg}</div>`
-    : '';
+  const intro     = name
+    ? `<strong>${name}</strong>, este es tu avance hasta ahora.`
+    : 'Este es tu avance hasta ahora.';
+  const milestone  = ROUTE_MILESTONES.find(m => pct <= m.max) ?? ROUTE_MILESTONES.at(-1);
+  const motivation = getMotivation(pct);
+
+  const studyingMetric = studyingCount > 0 ? `
+      <div class="route-metric">
+        <div class="route-metric-value" style="color:var(--blue)">${studyingCount}</div>
+        <div class="route-metric-label">En curso</div>
+      </div>` : '';
 
   return `
-    <div>
-      <div class="panel-greeting">${greeting}</div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value">${approved.size}</div>
-          <div class="stat-label">Aprobados</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" style="${delayed > 0 ? 'color:var(--red)' : ''}">${delayed}</div>
-          <div class="stat-label">Atrasados</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${blockedArr.length}</div>
-          <div class="stat-label">Bloqueados</div>
-        </div>
+    <div class="route-card">
+      <p class="route-intro">${intro}</p>
+      <div class="route-pct-row">
+        <span class="route-pct-value">${pct}%</span>
+        <span class="route-pct-label">completado</span>
       </div>
-      <div style="margin-top:8px;padding:7px 10px;background:var(--surface-2);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:11px;color:var(--text-2)">SCT acumulados</span>
-        <span style="font-size:13px;font-weight:600">${accumulatedSCT}${studyingSCT > 0 ? ` <span style="font-size:10px;color:var(--blue);font-weight:400">(+${studyingSCT} cursando)</span>` : ''}</span>
+      <div class="route-progress-bar">
+        <div class="route-progress-fill" style="width:${pct}%"></div>
       </div>
-      <div class="progress-bar"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
-      <div class="progress-label">${pct}% · ${approvedSCT}/${TOTAL_CREDITS} SCT aprobados</div>
-      ${milestoneHtml}
+      <div class="route-metrics">
+        <div class="route-metric">
+          <div class="route-metric-value" style="color:var(--green)">${approvedCount}</div>
+          <div class="route-metric-label">Aprobados</div>
+        </div>
+        <div class="route-metric">
+          <div class="route-metric-value">${pendingCount}</div>
+          <div class="route-metric-label">Pendientes</div>
+        </div>
+        ${studyingMetric}
+      </div>
+      <div class="route-milestone">
+        <span>${milestone.icon}</span>
+        <span><strong>Próximo hito:</strong> ${milestone.text}</span>
+      </div>
+      <p class="route-motivation">${motivation}</p>
     </div>`;
 }
 

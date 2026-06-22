@@ -611,6 +611,95 @@
   margin-top: 5px;
 }
 
+/* ── Route card (Tu ruta académica) ── */
+.route-card {
+  padding: 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--blue-bg) 0%, #F0FDF8 100%);
+  border: 1px solid var(--blue-border);
+}
+.route-intro {
+  font-size: 11px;
+  color: var(--text-2);
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+.route-pct-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+.route-pct-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--blue);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.route-pct-label {
+  font-size: 11px;
+  color: var(--text-2);
+}
+.route-progress-bar {
+  height: 7px;
+  background: var(--blue-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.route-progress-fill {
+  height: 100%;
+  background: var(--blue);
+  border-radius: 4px;
+  transition: width .5s ease;
+}
+.route-metrics {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.route-metric {
+  flex: 1;
+  text-align: center;
+  padding: 7px 4px;
+  background: rgba(255,255,255,.65);
+  border-radius: 8px;
+  border: 1px solid rgba(199,210,254,.5);
+}
+.route-metric-value {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.route-metric-label {
+  font-size: 9px;
+  color: var(--text-2);
+  margin-top: 2px;
+  line-height: 1.2;
+}
+.route-milestone {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  font-size: 10px;
+  color: var(--text-2);
+  line-height: 1.45;
+  padding: 7px 9px;
+  background: rgba(255,255,255,.6);
+  border-radius: 8px;
+  margin-bottom: 7px;
+}
+.route-motivation {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--blue);
+  text-align: center;
+  line-height: 1.4;
+}
+
 /* ── Greeting bar ── */
 .greeting-bar {
   flex-shrink: 0;
