@@ -130,40 +130,99 @@
 
 <!-- ── Onboarding: Step 2 — personalized instructivo ─────────────────────────── -->
 <div class="modal-overlay" id="onboarding-modal">
-  <div class="modal" style="max-width:580px;max-height:84vh;overflow-y:auto;padding:28px 32px">
+  <div class="modal" style="max-width:600px;max-height:88vh;overflow-y:auto;padding:28px 32px">
     <h2 style="margin-bottom:4px">Hola, <span id="onboarding-name">...</span> 👋</h2>
-    <p class="modal-sub" style="margin-bottom:20px">Así funciona tu malla — tómate un minuto para sacarle el máximo partido.</p>
+    <p class="modal-sub" style="margin-bottom:22px">Así funciona tu malla — tómate un minuto para sacarle el máximo partido.</p>
 
-    <div style="display:flex;flex-direction:column;gap:18px;font-size:12px;line-height:1.6;color:var(--text)">
+    <div style="display:flex;flex-direction:column;gap:20px;font-size:12px;line-height:1.6;color:var(--text)">
 
+      <!-- ① Estados -->
       <div>
-        <div style="font-weight:600;font-size:13px;margin-bottom:6px">① Marca el estado de tus ramos</div>
-        <p style="color:var(--text-2);margin-bottom:8px">Haz clic en cualquier tarjeta para abrir el menú y asignarle su estado real:</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 12px">
-          <div><span style="color:var(--green);font-weight:600">✓ Aprobado</span> — lo aprobaste normalmente</div>
-          <div><span style="color:var(--blue);font-weight:600">📖 Cursando</span> — lo estás tomando ahora</div>
-          <div><span style="color:#4338CA;font-weight:600">⚡ Adelantado</span> — lo aprobaste antes de su semestre</div>
-          <div><span style="color:#166534;font-weight:600">⊘ Eximido</span> — eximido por prueba (solo Inglés)</div>
-          <div><span style="color:#0891B2;font-weight:600">⇌ Convalidado</span> — cursado en otra carrera</div>
-          <div><span style="color:var(--red);font-weight:600">✗ Reprobado</span> — no lograste aprobarlo</div>
-          <div><span style="color:var(--orange);font-weight:600">⏭ No tomado</span> — no lo tomaste cuando debías</div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">① Marca el estado de cada ramo</div>
+        <p style="color:var(--text-2);margin-bottom:8px">Haz clic en cualquier tarjeta para abrir el menú contextual y elegir su estado real. Las opciones están en primera persona para que sea más directo:</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;margin-bottom:8px">
+          <div><span style="color:var(--green);font-weight:600">✓ Ya lo aprobé</span> — aprobado normalmente</div>
+          <div><span style="color:var(--blue);font-weight:600">📖 Lo estoy cursando</span> — este semestre</div>
+          <div><span style="color:#4338CA;font-weight:600">⚡ Lo tomé por adelantado</span> — antes de su semestre</div>
+          <div><span style="color:#166534;font-weight:600">⊘ Estoy eximido</span> — solo para Inglés I e II</div>
+          <div><span style="color:#0891B2;font-weight:600">⇌ Lo convalidé</span> — cursado en otra carrera</div>
+          <div><span style="color:var(--red);font-weight:600">↩ Lo reprobé</span> — necesito retomarlo</div>
+          <div><span style="color:var(--orange);font-weight:600">⏭ No lo tomé</span> — no lo tomé cuando debía</div>
         </div>
-        <p style="color:var(--text-2);margin-top:8px">Los ramos <strong>reprobados</strong> y <strong>no tomados</strong> bloquean a los que los tienen como prerrequisito.</p>
+        <p style="color:var(--text-2)">Los ramos <strong>reprobados</strong> y <strong>no tomados</strong> bloquean a los que los tienen como prerrequisito. El menú también muestra una breve explicación del ramo y qué otros ramos desbloquea al aprobarlo.</p>
       </div>
 
+      <!-- ② Tarjetas -->
       <div>
-        <div style="font-weight:600;font-size:13px;margin-bottom:6px">② Mueve ramos entre semestres (opcional)</div>
-        <p style="color:var(--text-2)">Arrastra cualquier tarjeta a otro semestre para reorganizar tu carga. El sistema verifica prerrequisitos, oferta semestral y límite de SCT automáticamente.</p>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">② Lee las etiquetas en las tarjetas</div>
+        <p style="color:var(--text-2);margin-bottom:8px">Cada tarjeta tiene una etiqueta de color que resume su situación de un vistazo:</p>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="background:var(--amber-bg);color:#92400E;border:1px solid var(--amber-border);border-radius:5px;padding:1px 6px;font-size:9px;font-weight:600;white-space:nowrap">✦ buena opción</span>
+            <span style="color:var(--text-2)">el planificador lo recomienda para tu próximo semestre</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="background:var(--surface-2);color:var(--text-3);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:9px;font-weight:600;white-space:nowrap">falta requisito</span>
+            <span style="color:var(--text-2)">no puedes tomarlo aún — le faltan prerrequisitos</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);border-radius:5px;padding:1px 6px;font-size:9px;font-weight:600;white-space:nowrap">📖 cursando ahora</span>
+            <span style="color:var(--text-2)">lo estás tomando este semestre</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-radius:5px;padding:1px 6px;font-size:9px;font-weight:600;white-space:nowrap">✓ ya aprobado</span>
+            <span style="color:var(--text-2)">ramo superado</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);border-radius:5px;padding:1px 6px;font-size:9px;font-weight:600;white-space:nowrap">↩ retomar</span>
+            <span style="color:var(--text-2)">reprobado — aparecerá en la proyección para retomarlo</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border);border-radius:5px;padding:1px 6px;font-size:9px;font-weight:600;white-space:nowrap">pendiente</span>
+            <span style="color:var(--text-2)">no tomado en su momento — está atrasado</span>
+          </div>
+        </div>
       </div>
 
+      <!-- ③ Organizar -->
       <div>
-        <div style="font-weight:600;font-size:13px;margin-bottom:6px">③ Proyecta tu ruta</div>
-        <p style="color:var(--text-2)">Una vez marcados tus ramos, haz clic en <strong>Proyectar mi ruta</strong> para configurar tu semestre actual y ritmo de avance. El sistema calculará el camino más claro hasta que termines.</p>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">③ Organiza tus semestres</div>
+        <div style="display:flex;flex-direction:column;gap:7px;color:var(--text-2)">
+          <div><strong style="color:var(--text)">Botones del encabezado:</strong> cada semestre tiene dos botones rápidos — <strong>✓ Aprobar sem.</strong> marca todos sus ramos como aprobados de una vez, y <strong>📖 Cursando ahora</strong> los marca como en curso. Volver a presionarlos los desmarca.</div>
+          <div><strong style="color:var(--text)">Arrastrar ramos:</strong> arrastra cualquier tarjeta hacia otro semestre para reorganizar tu carga. El sistema valida prerrequisitos, período de oferta y límite de SCT automáticamente.</div>
+          <div><strong style="color:var(--text)">↔ Modo libre</strong> (aparece en la barra superior tras proyectar): desactiva todas las restricciones de arrastre para que puedas explorar distribuciones libremente. El contador de SCT se muestra en rojo si hay sobrecarga, pero el movimiento siempre se permite. Sal con <strong>✓ Listo</strong>.</div>
+        </div>
       </div>
 
+      <!-- ④ Proyectar -->
+      <div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">④ Proyecta tu ruta</div>
+        <p style="color:var(--text-2)">Una vez marcados tus ramos, haz clic en <strong>Proyectar mi ruta</strong> para indicar en qué semestre estás y qué ritmo prefieres:</p>
+        <div style="display:flex;flex-direction:column;gap:4px;color:var(--text-2);margin-top:4px">
+          <div><span style="color:#4338CA;font-weight:600">🚀 Rápida</span> — máxima carga, hasta 33 SCT por semestre</div>
+          <div><span style="color:var(--blue);font-weight:600">⚖️ Equilibrada</span> — buen balance, hasta 28 SCT</div>
+          <div><span style="color:var(--green);font-weight:600">🌿 Tranquila</span> — sin agobio, hasta 26 SCT</div>
+        </div>
+        <p style="color:var(--text-2);margin-top:8px">El sistema calculará automáticamente el camino más claro hasta que termines la carrera, respetando prerrequisitos y tu ritmo. Puedes cambiar el ritmo en cualquier momento desde el panel lateral.</p>
+      </div>
+
+      <!-- ⑤ Panel -->
+      <div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">⑤ Panel lateral — "Tu próximo paso"</div>
+        <p style="color:var(--text-2);margin-bottom:7px">El panel derecho te guía semestre a semestre con cuatro secciones:</p>
+        <div style="display:flex;flex-direction:column;gap:5px;color:var(--text-2)">
+          <div><strong style="color:var(--text)">Lo más recomendable ahora:</strong> los ramos sugeridos para el próximo semestre, cada uno con una pista de por qué aparece (cuántos ramos desbloquea, si tiene prerrequisitos, etc.).</div>
+          <div><strong style="color:var(--text)">Por qué estos ramos:</strong> una explicación simple de los criterios que usó el planificador.</div>
+          <div><strong style="color:var(--text)">Carga estimada:</strong> el total en SCT con un badge visual — liviana, equilibrada o alta — relativo al límite de tu ritmo.</div>
+          <div><strong style="color:var(--text)">Consejo para este semestre:</strong> una recomendación personalizada según tu ritmo y la carga proyectada.</div>
+        </div>
+        <p style="color:var(--text-2);margin-top:7px">Desde cada ramo recomendado puedes presionar <strong>⏸</strong> para posponerlo — el planificador buscará una alternativa.</p>
+      </div>
+
+      <!-- Tip -->
       <div style="background:var(--surface-2);border-radius:8px;padding:12px 14px">
         <div style="font-weight:600;margin-bottom:4px">Consejo</div>
-        <p style="color:var(--text-2);margin:0">Mientras más precisa sea tu información, más útil será la proyección. Tómate unos minutos para marcar todos tus ramos antes de proyectar: el resultado será mucho más fiel a tu situación real.</p>
+        <p style="color:var(--text-2);margin:0">Mientras más precisa sea tu información, más útil será la proyección. Tómate unos minutos para marcar todos tus ramos antes de proyectar — el resultado será mucho más fiel a tu situación real.</p>
       </div>
 
     </div>
