@@ -6,8 +6,34 @@
 import { COURSES, TOTAL_CREDITS, PRACTICUM_ID } from './data.js';
 import { getCourseById, getSemesterParity, getEffectiveSemester, getBlocked } from './planner.js';
 import { getFailed, getNotTaken } from './state.js';
+import { getUserName } from './onboarding.js';
 
 const semesterLabel = (s) => getSemesterParity(s) === 'first' ? 'Mar–Jul' : 'Ago–Dic';
+
+const PACE_CTX = {
+  rapida:      {
+    emoji: '🚀', label: 'Rápida',
+    next_msg: 'Al ritmo máximo, aquí están todos los ramos disponibles para el próximo semestre.',
+    advice: 'Aprovecha cada semestre al tope. Mantén los prerrequisitos al día para no bloquear ramos clave — una cadena rota puede retrasar mucho.',
+  },
+  equilibrada: {
+    emoji: '⚖️', label: 'Equilibrada',
+    next_msg: 'Selección balanceada para el próximo semestre. Buena carga sin saturarte.',
+    advice: 'El ritmo equilibrado te permite avanzar bien sin desgastarte. Es el ritmo que más estudiantes sostienen hasta el final.',
+  },
+  tranquila:   {
+    emoji: '🌿', label: 'Tranquila',
+    next_msg: 'Carga liviana para el próximo semestre. Calidad sobre cantidad.',
+    advice: 'Ir a tu propio ritmo es una decisión inteligente. Menos ramos, más aprendizaje. Cuida tu bienestar y llegarás igual de lejos.',
+  },
+};
+
+const MILESTONES = [
+  { min: 90, icon: '🏁', msg: 'Casi en la meta — la práctica profesional se asoma.' },
+  { min: 75, icon: '🌟', msg: 'Recta final. Solo queda el último tramo.' },
+  { min: 50, icon: '⭐', msg: '¡Mitad de la carrera completada!' },
+  { min: 25, icon: '✨', msg: 'Construyendo bases sólidas.' },
+];
 
 function estimateGraduationDate(maxPlanSem, currentSem) {
   const semsFromNow = maxPlanSem - currentSem;
@@ -15,7 +41,6 @@ function estimateGraduationDate(maxPlanSem, currentSem) {
   const now   = new Date();
   const month = now.getMonth() + 1;
   const year  = now.getFullYear();
-  // 0 = first sem (Mar–Jul), 1 = second sem (Ago–Dic)
   let ord  = (month >= 3 && month <= 7) ? 0 : 1;
   ord     += semsFromNow;
   const gradYear = year + Math.floor(ord / 2);
@@ -26,6 +51,7 @@ function estimateGraduationDate(maxPlanSem, currentSem) {
 /**
  * @param {object} ctx
  * @param {Set}    ctx.approved
+ * @param {Set}    ctx.studying
  * @param {Set}    ctx.failed
  * @param {Set}    ctx.notTaken
  * @param {Set}    ctx.blocked
@@ -37,7 +63,9 @@ function estimateGraduationDate(maxPlanSem, currentSem) {
  * @returns {string}
  */
 export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, recommended, plan, postponed, currentSem, strategy }) {
-  if (!currentSem) return buildUnconfiguredPanel();
+  const name = getUserName();
+
+  if (!currentSem) return buildUnconfiguredPanel(name);
 
   const nextSem        = currentSem + 1;
   const approvedSCT    = COURSES.filter(c => approved.has(c.id)).reduce((sum, c) => sum + c.credits, 0);
@@ -49,34 +77,44 @@ export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, 
   const recommendedSCT = recommendedArr.reduce((sum, c) => sum + c.credits, 0);
 
   return [
-    buildProgressSection(approved, failed, notTaken, blockedArr, approvedSCT, studyingSCT, progressPct),
+    buildProgressSection(name, approved, failed, notTaken, blockedArr, approvedSCT, studyingSCT, progressPct),
+    buildRecommendedSection(recommendedArr, recommendedSCT, nextSem, strategy),
     buildStrategySection(strategy),
-    buildRecommendedSection(recommendedArr, recommendedSCT, nextSem),
+    buildPaceAdvice(strategy),
     postponedArr.length ? buildPostponedSection(postponedArr) : '',
     buildProjectionSection(plan, nextSem),
-    blockedArr.length  ? buildBlockedSection(blockedArr) : '',
+    blockedArr.length   ? buildBlockedSection(blockedArr) : '',
+    buildPanelFooter(name),
   ].join('');
 }
 
-function buildUnconfiguredPanel() {
+function buildUnconfiguredPanel(name) {
+  const greeting = name ? `Hola, <strong>${name}</strong> — ` : '';
   return `
     <div>
-      <div class="section-title">Configura tu semestre</div>
-      <p style="font-size:11px;color:var(--text-2);line-height:1.6;margin-bottom:10px">
-        Dinos dónde estás para recibir un plan personalizado.
+      <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">${greeting}configura tu semestre actual</p>
+      <p style="font-size:11px;color:var(--text-2);line-height:1.6;margin-bottom:12px">
+        Dinos en qué punto estás para calcular tu ruta personalizada y ver los ramos recomendados para el próximo semestre.
       </p>
-      <button class="btn btn--primary" style="width:100%;padding:9px" data-action="open-config">
+      <button class="btn btn--primary" style="width:100%;padding:10px" data-action="open-config">
         ⚙ Configurar ahora →
       </button>
     </div>`;
 }
 
-function buildProgressSection(approved, failed, notTaken, blockedArr, approvedSCT, studyingSCT, pct) {
+function buildProgressSection(name, approved, failed, notTaken, blockedArr, approvedSCT, studyingSCT, pct) {
   const delayed        = failed.size + notTaken.size;
   const accumulatedSCT = approvedSCT + studyingSCT;
+  const greeting       = name ? `Hola, <strong>${name}</strong> 👋` : 'Tu avance';
+
+  const milestone      = MILESTONES.find(m => pct >= m.min);
+  const milestoneHtml  = milestone
+    ? `<div style="margin-top:7px;padding:6px 9px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:8px;font-size:10px;color:var(--amber);line-height:1.4">${milestone.icon} ${milestone.msg}</div>`
+    : '';
+
   return `
     <div>
-      <div class="section-title">Tu avance</div>
+      <div class="panel-greeting">${greeting}</div>
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-value">${approved.size}</div>
@@ -91,20 +129,21 @@ function buildProgressSection(approved, failed, notTaken, blockedArr, approvedSC
           <div class="stat-label">Bloqueados</div>
         </div>
       </div>
-      <div style="margin-top:8px;padding:7px 10px;background:var(--surface-2);border-radius:6px;display:flex;justify-content:space-between;align-items:center">
+      <div style="margin-top:8px;padding:7px 10px;background:var(--surface-2);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:11px;color:var(--text-2)">SCT acumulados</span>
         <span style="font-size:13px;font-weight:600">${accumulatedSCT}${studyingSCT > 0 ? ` <span style="font-size:10px;color:var(--blue);font-weight:400">(+${studyingSCT} cursando)</span>` : ''}</span>
       </div>
       <div class="progress-bar"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
       <div class="progress-label">${pct}% · ${approvedSCT}/${TOTAL_CREDITS} SCT aprobados</div>
+      ${milestoneHtml}
     </div>`;
 }
 
 function buildStrategySection(currentStrategy) {
   const options = [
-    { key: 'rapida',      label: '🚀 Rápida',      sub: 'Max 33 SCT' },
-    { key: 'equilibrada', label: '⚖️ Equilibrada', sub: 'Max 28 SCT' },
-    { key: 'tranquila',   label: '🌿 Tranquila',   sub: 'Max 26 SCT' },
+    { key: 'rapida',      label: '🚀 Rápida',      sub: 'Hasta 33 SCT' },
+    { key: 'equilibrada', label: '⚖️ Equilibrada', sub: 'Hasta 28 SCT' },
+    { key: 'tranquila',   label: '🌿 Tranquila',   sub: 'Hasta 26 SCT' },
   ];
   const buttons = options.map(o => `
     <button class="strategy-option${o.key === currentStrategy ? ' strategy-option--selected' : ''}"
@@ -121,8 +160,9 @@ function buildStrategySection(currentStrategy) {
     </div>`;
 }
 
-function buildRecommendedSection(recommendedArr, recommendedSCT, nextSem) {
-  const label = `${getSemesterParity(nextSem) === 'first' ? 'Mar–Jul' : 'Ago–Dic'}`;
+function buildRecommendedSection(recommendedArr, recommendedSCT, nextSem, strategy) {
+  const ctx   = PACE_CTX[strategy] || PACE_CTX.equilibrada;
+  const label = semesterLabel(nextSem);
 
   const items = recommendedArr.length === 0
     ? `<div class="empty-message">No hay ramos disponibles para el próximo semestre.</div>`
@@ -143,8 +183,18 @@ function buildRecommendedSection(recommendedArr, recommendedSCT, nextSem) {
         Para tu próximo semestre
         <span class="count">${recommendedArr.length} ramos · ${recommendedSCT} SCT</span>
       </div>
-      <div style="font-size:9px;color:var(--text-2);margin-bottom:6px">Semestre ${nextSem} (${label})</div>
+      <div style="font-size:9px;color:var(--text-2);margin-bottom:6px">Semestre ${nextSem} · ${label}</div>
+      ${recommendedArr.length > 0 ? `<div style="font-size:10px;color:var(--text-2);line-height:1.5;padding:6px 9px;background:var(--surface-2);border-radius:7px;margin-bottom:7px">${ctx.next_msg}</div>` : ''}
       <div class="rec-list">${items}</div>
+    </div>`;
+}
+
+function buildPaceAdvice(strategy) {
+  const ctx = PACE_CTX[strategy] || PACE_CTX.equilibrada;
+  return `
+    <div style="padding:10px 12px;background:var(--surface-2);border-radius:9px;border-left:3px solid var(--blue)">
+      <div style="font-size:9px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Ritmo ${ctx.emoji} ${ctx.label}</div>
+      <div style="font-size:10px;color:var(--text-2);line-height:1.55">${ctx.advice}</div>
     </div>`;
 }
 
@@ -176,7 +226,7 @@ function buildProjectionSection(plan, nextSem) {
   const gradDate      = estimateGraduationDate(maxPlanSem, currentSem);
 
   const gradBadge = gradDate ? `
-    <div style="margin-bottom:8px;padding:8px 10px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:7px;display:flex;justify-content:space-between;align-items:center">
+    <div style="margin-bottom:8px;padding:8px 10px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
       <span style="font-size:10px;color:var(--blue);font-weight:600">🎓 Titulación estimada</span>
       <span style="font-size:12px;font-weight:700;color:var(--blue)">${gradDate}</span>
     </div>
@@ -218,15 +268,6 @@ function buildProjectionSection(plan, nextSem) {
     </div>`;
 }
 
-function buildDownloadButton() {
-  return `
-    <div>
-      <button class="btn" style="width:100%;padding:9px;text-align:center" data-action="download-projection">
-        ↓ Descargar proyección completa
-      </button>
-    </div>`;
-}
-
 function buildBlockedSection(blockedArr) {
   const items = blockedArr.slice(0, 6).map(c => {
     const bad       = new Set([...getFailed(), ...getNotTaken()]);
@@ -257,6 +298,16 @@ function buildBlockedSection(blockedArr) {
         Bloqueados por atrasos <span class="count">${blockedArr.length}</span>
       </div>
       <div class="bl-list">${items}${overflow}</div>
+    </div>`;
+}
+
+function buildPanelFooter(name) {
+  return `
+    <div style="text-align:center;padding-top:4px;border-top:1px solid var(--border)">
+      <button style="font-size:9px;color:var(--text-3);background:none;border:none;cursor:pointer;font-family:inherit;padding:6px;transition:color .1s" data-action="change-name"
+              onmouseover="this.style.color='var(--text-2)'" onmouseout="this.style.color='var(--text-3)'">
+        ✏ Cambiar nombre${name ? ` (${name})` : ''}
+      </button>
     </div>`;
 }
 

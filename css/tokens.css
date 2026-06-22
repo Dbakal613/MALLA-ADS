@@ -9,9 +9,10 @@
   --text-2:       #68655C;
   --text-3:       #9E9A93;
 
-  --blue:         #1A56DB;
-  --blue-bg:      #EBF0FF;
-  --blue-border:  #A4BCFD;
+  /* Indigo — warmer than institutional blue */
+  --blue:         #4F46E5;
+  --blue-bg:      #EEF2FF;
+  --blue-border:  #C7D2FE;
 
   --green:        #057A55;
   --green-bg:     #ECFDF3;
@@ -36,6 +37,12 @@
   --gray-bg:      #F1F0EC;
   --gray-border:  #D1CEC7;
 
-  --shadow:       0 1px 3px rgba(0, 0, 0, .07);
-  --shadow-md:    0 4px 16px rgba(0, 0, 0, .10);
+  --shadow:       0 2px 8px rgba(0,0,0,.07);
+  --shadow-md:    0 8px 24px rgba(0,0,0,.12);
+  --shadow-lg:    0 20px 48px rgba(0,0,0,.18);
+
+  --radius-sm:    6px;
+  --radius-md:    10px;
+  --radius-lg:    14px;
+  --radius-xl:    20px;
 }

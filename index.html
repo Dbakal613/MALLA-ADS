@@ -23,12 +23,13 @@
     <div class="topbar-title">
       Malla Curricular <span>— Administración de Servicios</span>
     </div>
+    <span id="topbar-user-greeting" class="topbar-user-greeting" style="display:none" data-action="change-name"></span>
     <span class="topbar-badge" id="topbar-badge">Sin configurar</span>
     <input class="topbar-search" id="topbar-search" type="search" placeholder="🔍 Buscar ramo…" autocomplete="off">
     <button class="btn" data-action="open-config">⚙ Mi semestre</button>
     <button class="btn" data-action="open-onboarding">? Instructivo</button>
     <button class="btn" data-action="download-projection">↓ Descargar</button>
-    <button class="btn" data-action="activate-whatif">⚗ Simular</button>
+    <button class="btn" data-action="activate-whatif">⚗ Probemos una ruta</button>
     <span class="topbar-sep"></span>
     <button class="btn btn--danger" data-action="reset-all">↩ Reiniciar</button>
   </div>
@@ -65,8 +66,8 @@
     <!-- Side panel -->
     <div class="side-panel">
       <div class="side-panel-header">
-        <h3>Planificación</h3>
-        <p>Marca tus ramos y el sistema recalcula tu camino óptimo.</p>
+        <h3>Tu ruta académica</h3>
+        <p>Planifica tu camino, avanza con claridad.</p>
       </div>
       <div class="side-panel-body" id="panel"></div>
     </div>
@@ -83,6 +84,47 @@
 
 <!-- ── Toast notification ─────────────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
+
+<!-- ── Welcome screen (first-time user) ──────────────────────────────────── -->
+<div class="modal-overlay" id="welcome-modal">
+  <div class="modal welcome-modal-box">
+    <div class="welcome-hero">
+      <div class="welcome-emoji">🎓</div>
+      <h2 class="welcome-title">Tu carrera, más clara y a tu ritmo</h2>
+      <p class="welcome-sub">Organiza tu ruta académica, controla tu avance y llega a la práctica profesional sin sorpresas.</p>
+    </div>
+
+    <div class="welcome-field">
+      <label class="config-label">¿Cómo te llamas?</label>
+      <input class="welcome-name-input" id="welcome-name-input"
+             type="text" placeholder="Escribe tu nombre…"
+             autocomplete="off" maxlength="30">
+    </div>
+
+    <div class="welcome-field">
+      <label class="config-label">¿Cómo prefieres avanzar en la carrera?</label>
+      <div class="welcome-pace-row">
+        <button class="welcome-pace-btn" data-action="select-pace" data-pace="rapida">
+          🚀 Rápida
+          <span>Máxima carga, terminas antes</span>
+        </button>
+        <button class="welcome-pace-btn welcome-pace-btn--selected" data-action="select-pace" data-pace="equilibrada">
+          ⚖️ Equilibrada
+          <span>Buen balance, ritmo sostenido</span>
+        </button>
+        <button class="welcome-pace-btn" data-action="select-pace" data-pace="tranquila">
+          🌿 Tranquila
+          <span>Sin agobio, calidad de vida</span>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn btn--primary welcome-start-btn" data-action="save-welcome">
+      Empezar a organizar mi ruta →
+    </button>
+    <p class="welcome-legal">Todo se guarda solo en tu navegador. Sin cuentas, sin datos personales.</p>
+  </div>
+</div>
 
 <!-- ── Onboarding modal ───────────────────────────────────────────────────── -->
 <div class="modal-overlay" id="onboarding-modal">

@@ -154,6 +154,9 @@ export function buildGridHTML({ approved, failed, notTaken, blocked, recommended
     });
   }
 
+  // True when the user has run the projection (at least one future semester is planned).
+  const hasAnyPlan = Object.keys(planMap).length > 0;
+
   const maxSem = Math.max(9,
     ...Object.keys(semMap).map(Number).filter(s => semMap[s].length > 0),
     ...Object.keys(planMap).map(Number)
@@ -245,15 +248,19 @@ export function buildGridHTML({ approved, failed, notTaken, blocked, recommended
       const isRecommended   = recommended.has(id) && status === 'pendiente' && !isBlocked && !postponed.has(id);
       const isPostponed     = postponed.has(id) && status === 'pendiente';
 
+      // When the projection is active, blocked courses are hidden from the current
+      // semester — they will appear as "proyectado" in their assigned future semester.
+      if (isCurrent && isBlocked && hasAnyPlan) return;
+
       if (isFuture && pIds.length > 0) {
         // Future semester with a plan: hide native courses the plan moved elsewhere.
         if (!pIds.includes(id) && !overrides[id]) return;
-        // Non-blocked plan courses → projected (blue dashed), draggable.
-        if ((pIds.includes(id) || overrides[id]) && !isBlocked && !isPostponed) {
+        // Plan courses (blocked or not) → always show as projected (blue dashed).
+        // A blocked course is assumed to be unblocked by the time its semester arrives.
+        if ((pIds.includes(id) || overrides[id]) && !isPostponed) {
           html += buildProjectedCard({ course, status, semNumber: s });
           return;
         }
-        // Blocked-but-planned → native card with planned-blocked styling.
       }
 
       html += buildCourseCard({ course, status, isBlocked, isPlannedBlocked, isRecommended, isPostponed, approved });
