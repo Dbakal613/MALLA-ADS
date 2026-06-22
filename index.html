@@ -30,8 +30,15 @@
     <button class="btn" data-action="open-onboarding">? Instructivo</button>
     <button class="btn" data-action="download-projection">↓ Descargar</button>
     <button class="btn" data-action="activate-whatif">⚗ Probemos una ruta</button>
+    <button class="btn" id="free-drag-btn" data-action="activate-free-drag" style="display:none">↔ Modo libre</button>
     <span class="topbar-sep"></span>
     <button class="btn btn--danger" data-action="reset-all">↩ Reiniciar</button>
+  </div>
+
+  <!-- ── Free drag banner ──────────────────────────────────────────────── -->
+  <div class="free-drag-banner" id="free-drag-banner" style="display:none">
+    <span>↔ Modo libre activo — arrastra los ramos sin restricciones. El contador en rojo indica sobrecarga de créditos.</span>
+    <button class="btn" data-action="exit-free-drag">✓ Listo</button>
   </div>
 
   <!-- ── Whatif banner ─────────────────────────────────────────────────── -->

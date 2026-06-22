@@ -18,6 +18,11 @@ let draggedCourseId         = null;  // regular card drag
 let draggedProjectedId      = null;  // projected card drag
 let draggedProjectedFromSem = null;
 
+// Free drag mode: bypasses all restriction hard-blocks.
+let freeDragMode = false;
+export const setFreeDragMode = (val) => { freeDragMode = val; };
+export const isFreeDragMode  = ()    => freeDragMode;
+
 // ── Drag start ────────────────────────────────────────────────────────────────
 
 export function onDragStart(event, courseId) {
@@ -74,18 +79,20 @@ function handleProjectedDrop(targetSem) {
   const course = getCourseById(draggedProjectedId);
   if (!course) { draggedProjectedId = null; return; }
 
-  if (!isValidOffering(course, targetSem)) {
+  if (!freeDragMode && !isValidOffering(course, targetSem)) {
     draggedProjectedId = null; return;
   }
 
-  const prereqConflicts = getPrereqConflicts(course, targetSem);
-  if (prereqConflicts.length) {
-    showToast(
-      `No puedes mover "${course.name}" al semestre ${targetSem}.\n` +
-      `Sus prerrequisitos deben estar antes: ${prereqConflicts.map(p => getCourseById(p)?.name ?? p).join(', ')}.`,
-      'error'
-    );
-    draggedProjectedId = null; return;
+  if (!freeDragMode) {
+    const prereqConflicts = getPrereqConflicts(course, targetSem);
+    if (prereqConflicts.length) {
+      showToast(
+        `No puedes mover "${course.name}" al semestre ${targetSem}.\n` +
+        `Sus prerrequisitos deben estar antes: ${prereqConflicts.map(p => getCourseById(p)?.name ?? p).join(', ')}.`,
+        'error'
+      );
+      draggedProjectedId = null; return;
+    }
   }
 
   // Use the higher of native semMap credits and plan credits for the destination semester.
@@ -96,7 +103,7 @@ function handleProjectedDrop(targetSem) {
     .reduce((sum, id) => { const c = getCourseById(id); return c ? sum + c.credits : sum; }, 0);
   const existingCredits = Math.max(computeDestinationCredits(targetSem, draggedProjectedId), planTargetCredits);
   const projCap = 33 + (isExtendedSemester(targetSem) ? 1 : 0);
-  if (existingCredits + course.credits > projCap) {
+  if (!freeDragMode && existingCredits + course.credits > projCap) {
     showToast(
       `No puedes mover "${course.name}" al semestre ${targetSem}.\n` +
       `Ese semestre tendría ${existingCredits + course.credits} SCT, superando el límite de ${projCap}.`,
@@ -128,14 +135,14 @@ function handleNativeDrop(targetSem) {
   const approved = getApproved();
   const blocked  = getBlocked();
 
-  if (!isValidOffering(course, targetSem)) {
+  if (!freeDragMode && !isValidOffering(course, targetSem)) {
     draggedCourseId = null; return;
   }
 
-  // Blocked courses can only be moved if they appear in the plan.
+  // Blocked courses can only be moved if they appear in the plan (ignored in free mode).
   const { plan } = safeCalculatePlan();
   const isInPlan = plan && Object.values(plan).some(ids => ids.includes(draggedCourseId));
-  if (blocked.has(draggedCourseId) && getCourseStatus(draggedCourseId) !== 'aprobado' && !isInPlan) {
+  if (!freeDragMode && blocked.has(draggedCourseId) && getCourseStatus(draggedCourseId) !== 'aprobado' && !isInPlan) {
     const culprits = course.prerequisites.filter(p => {
       const blocked2 = getBlocked();
       return getCourseStatus(p) === 'reprobado' || getCourseStatus(p) === 'no-tomado' || blocked2.has(p);
@@ -147,36 +154,38 @@ function handleNativeDrop(targetSem) {
     draggedCourseId = null; return;
   }
 
-  const prereqConflicts = getPrereqConflicts(course, targetSem);
-  if (prereqConflicts.length) {
-    showToast(
-      `❌ No puedes mover "${course.name}" al semestre ${targetSem}.\n` +
-      `Sus prerrequisitos deben estar en semestres anteriores:\n${prereqConflicts.map(p => getCourseById(p)?.name ?? p).join(', ')}.`,
-      'error'
+  if (!freeDragMode) {
+    const prereqConflicts = getPrereqConflicts(course, targetSem);
+    if (prereqConflicts.length) {
+      showToast(
+        `❌ No puedes mover "${course.name}" al semestre ${targetSem}.\n` +
+        `Sus prerrequisitos deben estar en semestres anteriores:\n${prereqConflicts.map(p => getCourseById(p)?.name ?? p).join(', ')}.`,
+        'error'
+      );
+      draggedCourseId = null; return;
+    }
+
+    // Warn if moving breaks a dependent course.
+    const dependentConflicts = COURSES.filter(c =>
+      c.prerequisites.includes(draggedCourseId) &&
+      getEffectiveSemester(c.id) <= targetSem &&
+      !approved.has(c.id)
     );
-    draggedCourseId = null; return;
+    if (dependentConflicts.length) {
+      showToast(
+        `⚠️ Si mueves "${course.name}" al semestre ${targetSem}, estos ramos que dependen de él quedarían mal:\n${dependentConflicts.map(x => x.name).join(', ')}.\nMuévelos primero a semestres posteriores.`,
+        'warning'
+      );
+      draggedCourseId = null; return;
+    }
   }
 
-  // Warn if moving breaks a dependent course.
-  const dependentConflicts = COURSES.filter(c =>
-    c.prerequisites.includes(draggedCourseId) &&
-    getEffectiveSemester(c.id) <= targetSem &&
-    !approved.has(c.id)
-  );
-  if (dependentConflicts.length) {
-    showToast(
-      `⚠️ Si mueves "${course.name}" al semestre ${targetSem}, estos ramos que dependen de él quedarían mal:\n${dependentConflicts.map(x => x.name).join(', ')}.\nMuévelos primero a semestres posteriores.`,
-      'warning'
-    );
-    draggedCourseId = null; return;
-  }
+  // Credit cap validation (bypassed in free mode — counter turns red visually).
+  const semMap      = buildSemMap();
+  const hasPracticum = (semMap[targetSem] ?? []).some(id => getCourseById(id)?.isPracticum);
+  const destCredits  = computeDestinationCreditsFromMap(semMap, targetSem, draggedCourseId);
 
-  // Credit cap validation.
-  const semMap         = buildSemMap();
-  const hasPracticum   = (semMap[targetSem] ?? []).some(id => getCourseById(id)?.isPracticum);
-  const destCredits    = computeDestinationCreditsFromMap(semMap, targetSem, draggedCourseId);
-
-  if (hasPracticum && course.credits > 3) {
+  if (!freeDragMode && hasPracticum && course.credits > 3) {
     showToast(
       `No permitido: el semestre ${targetSem} tiene Práctica Profesional (30 SCT).\nSolo puedes agregar ramos de máximo 3 SCT.`,
       'error'
@@ -185,7 +194,7 @@ function handleNativeDrop(targetSem) {
   }
 
   const cap = 33 + (isExtendedSemester(targetSem) ? 1 : 0);
-  if (destCredits + course.credits > cap) {
+  if (!freeDragMode && destCredits + course.credits > cap) {
     showToast(
       `No permitido: mover "${course.name}" al semestre ${targetSem} llevaría ese semestre a ${destCredits + course.credits} SCT.\nEl límite es ${cap} SCT.`,
       'error'

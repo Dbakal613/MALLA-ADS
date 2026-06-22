@@ -52,6 +52,20 @@
 }
 .whatif-banner-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
+.free-drag-banner {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 14px;
+  background: var(--blue-bg);
+  border-bottom: 1px solid var(--blue-border);
+  font-size: 11px;
+  color: var(--blue);
+  font-weight: 500;
+}
+
 /* ── Top badge ── */
 .topbar-badge {
   font-size: 10px;

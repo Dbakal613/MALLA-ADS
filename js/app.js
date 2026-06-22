@@ -18,7 +18,7 @@ import { COURSES, TOTAL_CREDITS } from './data.js';
 import { buildGridHTML }   from './grid-html.js';
 import { buildPanelHTML } from './panel-html.js';
 import { openContextMenu, closeContextMenu } from './context-menu.js';
-import { onDragStart, onDragStartProjected, onDragEnd, onDragOver, onDragLeave, onDrop } from './drag-drop.js';
+import { onDragStart, onDragStartProjected, onDragEnd, onDragOver, onDragLeave, onDrop, setFreeDragMode } from './drag-drop.js';
 import { openConfig, closeConfig, applyConfig, handleConfigClick, updateTopbarBadge, handleReset, doReset } from './config.js';
 import { showToast } from './toast.js';
 import { initOnboarding, closeOnboarding, getUserName, getUserPace, saveUser, clearUserData } from './onboarding.js';
@@ -86,6 +86,7 @@ function _render() {
   updateTopbarGreeting();
   renderGreetingBar();
   updateProjectionCTA();
+  updateFreeDragBtn();
 }
 
 // ── Drag event attachment (runs after each render) ───────────────────────────
@@ -417,6 +418,21 @@ function handleClick(event) {
       break;
 
     // ── Whatif (simulation) mode ──────────────────────────────────────────────
+    // ── Free drag mode ────────────────────────────────────────────────────────
+    case 'activate-free-drag': {
+      setFreeDragMode(true);
+      document.getElementById('free-drag-banner').style.display = '';
+      document.getElementById('free-drag-btn').style.display = 'none';
+      showToast('Modo libre activado. Arrastra los ramos sin restricciones.', 'success');
+      break;
+    }
+
+    case 'exit-free-drag':
+      setFreeDragMode(false);
+      document.getElementById('free-drag-banner').style.display = 'none';
+      document.getElementById('free-drag-btn').style.display = '';
+      break;
+
     case 'activate-whatif':
       if (whatIfSnapshot) break;
       whatIfSnapshot = getStateSnapshot();
@@ -619,6 +635,17 @@ function updateProjectionCTA() {
   const el = document.getElementById('projection-cta');
   if (!el) return;
   el.style.display = (profile.name && !profile.hasCompletedOnboarding) ? '' : 'none';
+}
+
+function updateFreeDragBtn() {
+  const btn     = document.getElementById('free-drag-btn');
+  const banner  = document.getElementById('free-drag-banner');
+  if (!btn) return;
+  const profile = getStudentProfile();
+  const configured = !!(profile.hasCompletedOnboarding && getCurrentSemesterNumber());
+  // Hide the button while the banner is visible (mode is active).
+  const bannerVisible = banner && banner.style.display !== 'none';
+  btn.style.display = (configured && !bannerVisible) ? '' : 'none';
 }
 
 // ── Bootstrap ────────────────────────────────────────────────────────────────
