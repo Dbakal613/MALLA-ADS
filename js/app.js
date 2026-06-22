@@ -354,6 +354,7 @@ function handleClick(event) {
 
       saveUser(projProfile.name, wPace);
       setCurrentSemester(wYear, wSemOY);
+      setStrategy(wPace);
       updateStudentProfile({ currentSemester: wSemNum, preferredPace: wPace, hasCompletedOnboarding: true });
 
       document.getElementById('projection-modal').classList.remove('modal-overlay--open');

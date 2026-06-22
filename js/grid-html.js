@@ -233,7 +233,7 @@ export function buildGridHTML({ approved, failed, notTaken, blocked, recommended
           </div>
           ${creditLabel}
           ${!isPracticum ? `<button class="mark-semester-btn" data-action="mark-semester" data-sem="${s}">✓ Aprobar sem.</button>` : ''}
-          ${isCurrent && !isPracticum ? `<button class="mark-semester-btn" style="margin-top:3px;background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)" data-action="mark-semester-studying" data-sem="${s}">📖 Cursando ahora</button>` : ''}
+          ${(isCurrent || !currentSem) && !isPracticum ? `<button class="mark-semester-btn" style="margin-top:3px;background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)" data-action="mark-semester-studying" data-sem="${s}">📖 Cursando ahora</button>` : ''}
           ${currentSem && !isPast && !isPracticum ? `<button class="mark-semester-btn" style="margin-top:3px;${semExtensions.has(s) ? 'background:#F0FDF4;color:#166534;border-color:#86EFAC' : 'background:var(--surface-2);color:var(--text-2)'}" data-action="extend-semester" data-sem="${s}">${semExtensions.has(s) ? '34 SCT ✓' : '+1 SCT'}</button>` : ''}
         </div>
         <div class="drop-zone" id="drop-${s}">`;
