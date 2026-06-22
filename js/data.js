@@ -97,6 +97,13 @@ export const EXEMPTABLE_COURSE_IDS = new Set(['ingles1', 'ingles2']);
 /** Courses that should not be paired with each other in the same semester. */
 export const DIFFICULT_COURSE_IDS = new Set(['creaneg2']);
 
+/**
+ * Optativo de Servicios courses.
+ * In even semesters (second semester of the year) any number can be taken.
+ * In odd semesters (first semester) at most 1 can be taken at a time.
+ */
+export const OPTATIVO_IDS = new Set(['opt6a', 'opt6b', 'opt8a', 'opt8b']);
+
 export const PRACTICUM_ID = 'practica';
 export const PRACTICUM_CREDITS = 30;
 /** Minimum non-practicum SCT that must be approved/in-progress before practicum can be scheduled. */

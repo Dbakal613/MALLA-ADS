@@ -16,7 +16,7 @@
 
 import {
   COURSES, STRATEGIES, MAX_EXTRA_SEMESTERS,
-  DIFFICULT_COURSE_IDS, PRACTICUM_ID, PRACTICUM_CREDITS,
+  DIFFICULT_COURSE_IDS, OPTATIVO_IDS, PRACTICUM_ID, PRACTICUM_CREDITS,
   PRACTICUM_MIN_SCT, PRACTICUM_MAX_COMPANION_CREDITS,
 } from './data.js';
 import {
@@ -183,6 +183,10 @@ export const calculatePlan = () => {
 
       const fitsInSemester = (c, usedCredits, coursesInSem) => {
         if (usedCredits + c.credits > hardCap) return false;
+        // Optativos: max 1 per first semester (odd); no limit in second semester (even).
+        if (OPTATIVO_IDS.has(c.id) && parity === 'first') {
+          if (coursesInSem.some(id => OPTATIVO_IDS.has(id))) return false;
+        }
         if (strategy === 'tranquila') {
           const heavyCount = coursesInSem.filter(id => (getCourseById(id)?.credits ?? 0) >= 5).length;
           if (c.credits >= 5 && heavyCount >= 2) return false;
@@ -292,6 +296,9 @@ export const calculatePlan = () => {
       const start = earliestAvailable[c.id];
       for (let s = start; s <= start + 30; s++) {
         if (c.offering !== 'both' && getSemesterParity(s) !== c.offering) continue;
+        if (OPTATIVO_IDS.has(c.id) && getSemesterParity(s) === 'first') {
+          if ((plan[s] ?? []).some(id => OPTATIVO_IDS.has(id))) continue;
+        }
         const semCredits = (plan[s] ?? []).reduce(
           (sum, id) => sum + (getCourseById(id)?.credits ?? 0), 0
         );
@@ -329,6 +336,9 @@ export const calculatePlan = () => {
 
         for (let t = ea; t < lastSem; t++) {
           if (c.offering !== 'both' && getSemesterParity(t) !== c.offering) continue;
+          if (OPTATIVO_IDS.has(id) && getSemesterParity(t) === 'first') {
+            if ((plan[t] ?? []).some(id2 => OPTATIVO_IDS.has(id2))) continue;
+          }
 
           const prereqsMet = c.prerequisites.every(p => {
             if (approved.has(p) || studying.has(p)) return true;
