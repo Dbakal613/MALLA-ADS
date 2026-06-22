@@ -90,6 +90,7 @@ function _render() {
   applySearchFilter(lastSearchQuery);
   updateTopbarGreeting();
   renderGreetingBar();
+  updateProjectionCTA();
 }
 
 // ── Drag event attachment (runs after each render) ───────────────────────────
@@ -257,12 +258,6 @@ function handleClick(event) {
       const profile = getStudentProfile();
       const ni = document.getElementById('welcome-name-input');
       if (ni) ni.value = profile.name || '';
-      document.querySelectorAll('.welcome-sem-btn').forEach(b => {
-        b.classList.toggle('welcome-sem-btn--selected', Number(b.dataset.sem) === profile.currentSemester);
-      });
-      document.querySelectorAll('.welcome-pace-btn').forEach(b => {
-        b.classList.toggle('welcome-pace-btn--selected', b.dataset.pace === (profile.preferredPace || 'equilibrada'));
-      });
       hideWelcomeError();
       document.getElementById('welcome-modal').classList.add('modal-overlay--open');
       break;
@@ -274,13 +269,8 @@ function handleClick(event) {
       clearStudentProfile();
       setCurrentSemester(null, null);
       setStrategy('equilibrada');
-      // Reset welcome form to empty state
       const ni2 = document.getElementById('welcome-name-input');
       if (ni2) ni2.value = '';
-      document.querySelectorAll('.welcome-sem-btn').forEach(b => b.classList.remove('welcome-sem-btn--selected'));
-      document.querySelectorAll('.welcome-pace-btn').forEach(b => {
-        b.classList.toggle('welcome-pace-btn--selected', b.dataset.pace === 'equilibrada');
-      });
       hideWelcomeError();
       document.getElementById('welcome-modal').classList.add('modal-overlay--open');
       updateTopbarBadge();
@@ -288,52 +278,88 @@ function handleClick(event) {
       break;
     }
 
-    // ── Welcome screen ────────────────────────────────────────────────────────
-    case 'select-welcome-sem':
-      document.querySelectorAll('.welcome-sem-btn').forEach(b => b.classList.remove('welcome-sem-btn--selected'));
-      el.classList.add('welcome-sem-btn--selected');
-      hideWelcomeError();
-      break;
-
-    case 'select-pace':
-      document.querySelectorAll('.welcome-pace-btn').forEach(b => b.classList.remove('welcome-pace-btn--selected'));
-      el.classList.add('welcome-pace-btn--selected');
-      hideWelcomeError();
-      break;
-
-    case 'save-welcome': {
+    // ── Welcome screen: Step 1 (name) ─────────────────────────────────────────
+    case 'save-name': {
       const nameInput = document.getElementById('welcome-name-input');
       const wName    = nameInput?.value?.trim() ?? '';
-      const semBtn   = document.querySelector('.welcome-sem-btn--selected');
-      const wSemNum  = semBtn ? Number(semBtn.dataset.sem) : null;
-      const paceBtn  = document.querySelector('.welcome-pace-btn--selected');
-      const wPace    = paceBtn?.dataset?.pace ?? null;
-
       if (!wName) {
         showWelcomeError('Escribe tu nombre para continuar. Lo usaremos para personalizar tu experiencia.');
         nameInput?.focus();
         break;
       }
+      const curProfile = getStudentProfile();
+      saveUser(wName, curProfile.preferredPace || getUserPace() || 'equilibrada');
+      updateStudentProfile({ name: wName });
+      // Fill the personalized name in the instructivo
+      const nameSpan = document.getElementById('onboarding-name');
+      if (nameSpan) nameSpan.textContent = wName;
+      document.getElementById('welcome-modal').classList.remove('modal-overlay--open');
+      document.getElementById('onboarding-modal').classList.add('modal-overlay--open');
+      render();
+      break;
+    }
+
+    // ── Onboarding: Step 2 (instructivo) ─────────────────────────────────────
+    case 'start-app': {
+      document.getElementById('onboarding-modal').classList.remove('modal-overlay--open');
+      updateProjectionCTA();
+      render();
+      break;
+    }
+
+    // ── Projection: Step 3 (semester + pace) ─────────────────────────────────
+    case 'select-proj-sem':
+      document.querySelectorAll('.proj-sem-btn').forEach(b => b.classList.remove('proj-sem-btn--selected'));
+      el.classList.add('proj-sem-btn--selected');
+      hideProjectionError();
+      break;
+
+    case 'select-proj-pace':
+      document.querySelectorAll('.proj-pace-btn').forEach(b => b.classList.remove('proj-pace-btn--selected'));
+      el.classList.add('proj-pace-btn--selected');
+      hideProjectionError();
+      break;
+
+    case 'open-projection-setup': {
+      const profile = getStudentProfile();
+      document.querySelectorAll('.proj-sem-btn').forEach(b => {
+        b.classList.toggle('proj-sem-btn--selected', profile.currentSemester ? Number(b.dataset.sem) === profile.currentSemester : false);
+      });
+      document.querySelectorAll('.proj-pace-btn').forEach(b => {
+        b.classList.toggle('proj-pace-btn--selected', b.dataset.pace === (profile.preferredPace || 'equilibrada'));
+      });
+      hideProjectionError();
+      document.getElementById('projection-modal').classList.add('modal-overlay--open');
+      break;
+    }
+
+    case 'save-projection': {
+      const semBtn  = document.querySelector('.proj-sem-btn--selected');
+      const wSemNum = semBtn ? Number(semBtn.dataset.sem) : null;
+      const paceBtn = document.querySelector('.proj-pace-btn--selected');
+      const wPace   = paceBtn?.dataset?.pace ?? null;
+
       if (!wSemNum) {
-        showWelcomeError('Selecciona el semestre en que te encuentras actualmente.');
+        showProjectionError('Selecciona el semestre en que te encuentras actualmente.');
         break;
       }
       if (!wPace) {
-        showWelcomeError('Elige el ritmo que mejor se adapte a ti.');
+        showProjectionError('Elige el ritmo que mejor se adapte a ti.');
         break;
       }
 
-      const wYear   = wSemNum === 9 ? 5 : Math.ceil(wSemNum / 2);
-      const wSemOY  = wSemNum === 9 ? 1 : (wSemNum % 2 === 0 ? 2 : 1);
+      const wYear  = wSemNum === 9 ? 5 : Math.ceil(wSemNum / 2);
+      const wSemOY = wSemNum === 9 ? 1 : (wSemNum % 2 === 0 ? 2 : 1);
+      const projProfile = getStudentProfile();
 
-      saveUser(wName, wPace);
+      saveUser(projProfile.name, wPace);
       setCurrentSemester(wYear, wSemOY);
-      updateStudentProfile({ name: wName, currentSemester: wSemNum, preferredPace: wPace, hasCompletedOnboarding: true });
+      updateStudentProfile({ currentSemester: wSemNum, preferredPace: wPace, hasCompletedOnboarding: true });
 
-      document.getElementById('welcome-modal').classList.remove('modal-overlay--open');
+      document.getElementById('projection-modal').classList.remove('modal-overlay--open');
       updateTopbarBadge();
       render();
-      showToast(`¡Bienvenido/a, ${wName}! Tu ruta está lista.`, 'success');
+      showToast(`¡Proyección lista, ${projProfile.name}! Tu ruta está configurada.`, 'success');
       break;
     }
 
@@ -350,9 +376,12 @@ function handleClick(event) {
     }
 
     // ── Onboarding ────────────────────────────────────────────────────────────
-    case 'open-onboarding':
+    case 'open-onboarding': {
+      const nameSpanO = document.getElementById('onboarding-name');
+      if (nameSpanO) nameSpanO.textContent = getStudentProfile().name || '...';
       document.getElementById('onboarding-modal').classList.add('modal-overlay--open');
       break;
+    }
 
     case 'close-onboarding':
       closeOnboarding();
@@ -551,7 +580,7 @@ function renderGreetingBar() {
     </div>`;
 }
 
-// ── Welcome screen helpers ────────────────────────────────────────────────────
+// ── Welcome / Projection screen helpers ──────────────────────────────────────
 
 function showWelcomeError(msg) {
   const el = document.getElementById('welcome-validation');
@@ -565,13 +594,33 @@ function hideWelcomeError() {
   if (el) el.style.display = 'none';
 }
 
+function showProjectionError(msg) {
+  const el = document.getElementById('projection-validation');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideProjectionError() {
+  const el = document.getElementById('projection-validation');
+  if (el) el.style.display = 'none';
+}
+
+function updateProjectionCTA() {
+  const profile = getStudentProfile();
+  const el = document.getElementById('projection-cta');
+  if (!el) return;
+  el.style.display = (profile.name && !profile.hasCompletedOnboarding) ? '' : 'none';
+}
+
 // ── Bootstrap ────────────────────────────────────────────────────────────────
 
 render();
 initOnboarding();
+updateProjectionCTA();
 
 document.getElementById('welcome-name-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.querySelector('[data-action="save-welcome"]')?.click();
+  if (e.key === 'Enter') document.querySelector('[data-action="save-name"]')?.click();
 });
 document.getElementById('welcome-name-input').addEventListener('input', () => hideWelcomeError());
 

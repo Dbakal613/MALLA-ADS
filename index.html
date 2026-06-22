@@ -58,6 +58,17 @@
   <!-- ── Greeting bar ─────────────────────────────────────────────────── -->
   <div class="greeting-bar" id="greeting-bar"></div>
 
+  <!-- ── Projection CTA (shown after onboarding, before projection) ── -->
+  <div class="projection-cta" id="projection-cta" style="display:none">
+    <div class="projection-cta-inner">
+      <div class="projection-cta-text">
+        <strong>¿Listo para proyectar tu ruta?</strong>
+        <span>Dínos en qué semestre estás y cómo quieres avanzar — te mostraremos el camino más claro.</span>
+      </div>
+      <button class="btn btn--primary" data-action="open-projection-setup">🗺 Proyectar mi ruta →</button>
+    </div>
+  </div>
+
   <!-- ── Main ───────────────────────────────────────────────────────────── -->
   <div class="main">
 
@@ -88,80 +99,42 @@
 <!-- ── Toast notification ─────────────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
 
-<!-- ── Welcome screen (first-time user) ──────────────────────────────────── -->
+<!-- ── Welcome screen: Step 1 — name only ─────────────────────────────────── -->
 <div class="modal-overlay" id="welcome-modal">
   <div class="modal welcome-modal-box">
     <div class="welcome-hero">
       <div class="welcome-emoji">🎓</div>
       <h2 class="welcome-title">Tu carrera, más clara y a tu ritmo</h2>
-      <p class="welcome-sub">Organiza tus ramos, entiende tu avance y planifica tus próximos semestres de una forma simple.</p>
+      <p class="welcome-sub">Soy tu asistente de malla curricular. Para comenzar, dime tu nombre.</p>
     </div>
 
     <div class="welcome-field">
-      <label class="welcome-label">¿Cómo te llamas?</label>
+      <label class="welcome-label" for="welcome-name-input">¿Cómo te llamas?</label>
       <input class="welcome-name-input" id="welcome-name-input"
              type="text" placeholder="Ej: Josefa"
              autocomplete="off" maxlength="40">
     </div>
 
-    <div class="welcome-field">
-      <label class="welcome-label">¿En qué semestre estás?</label>
-      <div class="welcome-sem-grid">
-        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="1">Sem 1<span>1° año</span></button>
-        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="2">Sem 2<span>1° año</span></button>
-        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="3">Sem 3<span>2° año</span></button>
-        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="4">Sem 4<span>2° año</span></button>
-        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="5">Sem 5<span>3° año</span></button>
-        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="6">Sem 6<span>3° año</span></button>
-        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="7">Sem 7<span>4° año</span></button>
-        <button class="welcome-sem-btn" data-action="select-welcome-sem" data-sem="8">Sem 8<span>4° año</span></button>
-        <button class="welcome-sem-btn welcome-sem-btn--practica" data-action="select-welcome-sem" data-sem="9">Práctica Profesional<span>5° año</span></button>
-      </div>
-    </div>
-
-    <div class="welcome-field">
-      <label class="welcome-label">¿Cómo quieres avanzar?</label>
-      <div class="welcome-pace-row">
-        <button class="welcome-pace-btn" data-action="select-pace" data-pace="rapida">
-          🚀 Quiero avanzar rápido
-          <span>Máxima carga, terminas antes</span>
-        </button>
-        <button class="welcome-pace-btn welcome-pace-btn--selected" data-action="select-pace" data-pace="equilibrada">
-          ⚖️ Quiero avanzar equilibradamente
-          <span>Buen balance, ritmo sostenido</span>
-        </button>
-        <button class="welcome-pace-btn" data-action="select-pace" data-pace="tranquila">
-          🌿 Quiero avanzar con calma
-          <span>Sin agobio, calidad de vida</span>
-        </button>
-      </div>
-    </div>
-
     <div class="welcome-validation" id="welcome-validation" style="display:none"></div>
 
-    <button class="btn btn--primary welcome-start-btn" data-action="save-welcome">
-      Empezar a organizar mi ruta →
+    <button class="btn btn--primary welcome-start-btn" data-action="save-name">
+      Siguiente →
     </button>
-    <p class="welcome-legal">Todo se guarda solo en tu navegador. Sin cuentas, sin datos personales.</p>
+    <p class="welcome-legal">Todo se guarda en tu navegador. Sin cuentas, sin datos personales.</p>
   </div>
 </div>
 
-<!-- ── Onboarding modal ───────────────────────────────────────────────────── -->
+<!-- ── Onboarding: Step 2 — personalized instructivo ─────────────────────────── -->
 <div class="modal-overlay" id="onboarding-modal">
-  <div class="modal" style="max-width:560px;max-height:82vh;overflow-y:auto;padding:28px 32px">
-    <h2 style="margin-bottom:4px">Bienvenido a tu Malla Curricular</h2>
-    <p class="modal-sub" style="margin-bottom:20px">Sigue estos pasos para sacarle el máximo partido a la herramienta.</p>
+  <div class="modal" style="max-width:580px;max-height:84vh;overflow-y:auto;padding:28px 32px">
+    <h2 style="margin-bottom:4px">Hola, <span id="onboarding-name">...</span> 👋</h2>
+    <p class="modal-sub" style="margin-bottom:20px">Así funciona tu malla — tómate un minuto para sacarle el máximo partido.</p>
 
     <div style="display:flex;flex-direction:column;gap:18px;font-size:12px;line-height:1.6;color:var(--text)">
 
       <div>
-        <div style="font-weight:600;font-size:13px;margin-bottom:6px">① Configura tu semestre actual</div>
-        <p style="color:var(--text-2)">Haz clic en <strong>⚙ Mi semestre</strong> (esquina superior derecha) y selecciona el año y semestre en que te encuentras actualmente. Esto permite que el sistema calcule una proyección personalizada para ti.</p>
-      </div>
-
-      <div>
-        <div style="font-weight:600;font-size:13px;margin-bottom:6px">② Marca el estado de cada ramo</div>
-        <p style="color:var(--text-2);margin-bottom:8px">Haz clic en cualquier tarjeta de ramo para abrir el menú de opciones y asignarle su estado real:</p>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">① Marca el estado de tus ramos</div>
+        <p style="color:var(--text-2);margin-bottom:8px">Haz clic en cualquier tarjeta para abrir el menú y asignarle su estado real:</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 12px">
           <div><span style="color:var(--green);font-weight:600">✓ Aprobado</span> — lo aprobaste normalmente</div>
           <div><span style="color:var(--blue);font-weight:600">📖 Cursando</span> — lo estás tomando ahora</div>
@@ -171,40 +144,79 @@
           <div><span style="color:var(--red);font-weight:600">✗ Reprobado</span> — no lograste aprobarlo</div>
           <div><span style="color:var(--orange);font-weight:600">⏭ No tomado</span> — no lo tomaste cuando debías</div>
         </div>
-        <p style="color:var(--text-2);margin-top:8px">Los ramos <strong>reprobados</strong> y <strong>no tomados</strong> bloquean a los ramos que los requieren como prerrequisito. Los <strong>convalidados</strong> no suman SCT al semestre pero sí al total de la carrera.</p>
+        <p style="color:var(--text-2);margin-top:8px">Los ramos <strong>reprobados</strong> y <strong>no tomados</strong> bloquean a los que los tienen como prerrequisito.</p>
       </div>
 
       <div>
-        <div style="font-weight:600;font-size:13px;margin-bottom:6px">③ Mueve ramos entre semestres (opcional)</div>
-        <p style="color:var(--text-2)">Arrastra cualquier tarjeta a otro semestre para reorganizar tu carga académica. El sistema verifica automáticamente que se cumplan los prerrequisitos, la oferta semestral (Mar–Jul / Ago–Dic) y el límite de SCT. Las tarjetas <span style="color:var(--blue);font-weight:600">azules punteadas</span> son la proyección del plan — también puedes arrastrarlas para ajustar los semestres futuros.</p>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">② Mueve ramos entre semestres (opcional)</div>
+        <p style="color:var(--text-2)">Arrastra cualquier tarjeta a otro semestre para reorganizar tu carga. El sistema verifica prerrequisitos, oferta semestral y límite de SCT automáticamente.</p>
       </div>
 
       <div>
-        <div style="font-weight:600;font-size:13px;margin-bottom:6px">④ Elige tu ruta de avance</div>
-        <p style="color:var(--text-2);margin-bottom:6px">Desde el panel lateral derecho selecciona el ritmo que mejor se adapta a ti:</p>
-        <div style="display:flex;flex-direction:column;gap:5px">
-          <div><span style="font-weight:600">🚀 Rápida</span> — maximiza los SCT por semestre (hasta 33 SCT). Ideal si quieres terminar la carrera en el menor tiempo posible.</div>
-          <div><span style="font-weight:600">⚖️ Equilibrada</span> — distribuye los ramos de forma balanceada (~28 SCT). Un buen punto medio entre carga y tiempo.</div>
-          <div><span style="font-weight:600">🌿 Tranquila</span> — carga liviana (~26 SCT). Ideal si trabajas, tienes actividades extracurriculares o prefieres ir a un ritmo más cómodo.</div>
-        </div>
-      </div>
-
-      <div>
-        <div style="font-weight:600;font-size:13px;margin-bottom:6px">⑤ Interpreta la proyección</div>
-        <p style="color:var(--text-2)">Una vez configurado tu semestre, el sistema muestra el camino proyectado en tarjetas azules punteadas. El panel lateral muestra los ramos recomendados para el próximo semestre y la proyección de semestres futuros. Todo se recalcula automáticamente cada vez que cambias el estado de un ramo.</p>
+        <div style="font-weight:600;font-size:13px;margin-bottom:6px">③ Proyecta tu ruta</div>
+        <p style="color:var(--text-2)">Una vez marcados tus ramos, haz clic en <strong>Proyectar mi ruta</strong> para configurar tu semestre actual y ritmo de avance. El sistema calculará el camino más claro hasta que termines.</p>
       </div>
 
       <div style="background:var(--surface-2);border-radius:8px;padding:12px 14px">
         <div style="font-weight:600;margin-bottom:4px">Consejo</div>
-        <p style="color:var(--text-2);margin:0">Mientras más precisa sea tu configuración, más útil será la proyección. Tómate unos minutos para marcar todos tus ramos antes de revisar el plan: el resultado será mucho más fiel a tu situación real.</p>
+        <p style="color:var(--text-2);margin:0">Mientras más precisa sea tu información, más útil será la proyección. Tómate unos minutos para marcar todos tus ramos antes de proyectar: el resultado será mucho más fiel a tu situación real.</p>
       </div>
 
     </div>
 
-    <div style="margin-top:24px;display:flex;justify-content:flex-end;gap:10px">
-      <button class="btn" data-action="show-onboarding-again" style="font-size:11px;color:var(--text-3)">Ver de nuevo</button>
-      <button class="btn btn--primary" data-action="close-onboarding" style="padding:10px 24px">Entendido, comenzar →</button>
+    <div style="margin-top:24px;display:flex;justify-content:flex-end">
+      <button class="btn btn--primary" data-action="start-app" style="padding:10px 28px;font-size:13px">Iniciar proceso →</button>
     </div>
+  </div>
+</div>
+
+<!-- ── Projection: Step 3 — semester + pace ──────────────────────────────────── -->
+<div class="modal-overlay" id="projection-modal">
+  <div class="modal welcome-modal-box">
+    <div class="welcome-hero">
+      <div class="welcome-emoji">🗺️</div>
+      <h2 class="welcome-title">Proyectemos tu ruta</h2>
+      <p class="welcome-sub">Dos preguntas para personalizar tu proyección semestral.</p>
+    </div>
+
+    <div class="welcome-field">
+      <label class="welcome-label">¿En qué semestre estás?</label>
+      <div class="welcome-sem-grid">
+        <button class="proj-sem-btn" data-action="select-proj-sem" data-sem="1">Sem 1<span>1° año</span></button>
+        <button class="proj-sem-btn" data-action="select-proj-sem" data-sem="2">Sem 2<span>1° año</span></button>
+        <button class="proj-sem-btn" data-action="select-proj-sem" data-sem="3">Sem 3<span>2° año</span></button>
+        <button class="proj-sem-btn" data-action="select-proj-sem" data-sem="4">Sem 4<span>2° año</span></button>
+        <button class="proj-sem-btn" data-action="select-proj-sem" data-sem="5">Sem 5<span>3° año</span></button>
+        <button class="proj-sem-btn" data-action="select-proj-sem" data-sem="6">Sem 6<span>3° año</span></button>
+        <button class="proj-sem-btn" data-action="select-proj-sem" data-sem="7">Sem 7<span>4° año</span></button>
+        <button class="proj-sem-btn" data-action="select-proj-sem" data-sem="8">Sem 8<span>4° año</span></button>
+        <button class="proj-sem-btn proj-sem-btn--practica" data-action="select-proj-sem" data-sem="9">Práctica Profesional<span>5° año</span></button>
+      </div>
+    </div>
+
+    <div class="welcome-field">
+      <label class="welcome-label">¿Cómo quieres avanzar?</label>
+      <div class="welcome-pace-row">
+        <button class="proj-pace-btn" data-action="select-proj-pace" data-pace="rapida">
+          🚀 Quiero avanzar rápido
+          <span>Máxima carga, terminas antes</span>
+        </button>
+        <button class="proj-pace-btn proj-pace-btn--selected" data-action="select-proj-pace" data-pace="equilibrada">
+          ⚖️ Quiero avanzar equilibradamente
+          <span>Buen balance, ritmo sostenido</span>
+        </button>
+        <button class="proj-pace-btn" data-action="select-proj-pace" data-pace="tranquila">
+          🌿 Quiero avanzar con calma
+          <span>Sin agobio, calidad de vida</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="welcome-validation" id="projection-validation" style="display:none"></div>
+
+    <button class="btn btn--primary welcome-start-btn" data-action="save-projection">
+      Ver mi proyección →
+    </button>
   </div>
 </div>
 

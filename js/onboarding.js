@@ -23,7 +23,7 @@ export function hasUser() {
 
 export function initOnboarding() {
   const profile = getStudentProfile();
-  if (!profile.hasCompletedOnboarding) {
+  if (!profile.name) {
     document.getElementById('welcome-modal').classList.add('modal-overlay--open');
   }
 }
