@@ -7,6 +7,7 @@ import { COURSES, TOTAL_CREDITS, PRACTICUM_ID } from './data.js';
 import { getCourseById, getSemesterParity, getEffectiveSemester, getBlocked } from './planner.js';
 import { getFailed, getNotTaken } from './state.js';
 import { getUserName } from './onboarding.js';
+import { getContextualAcademicMessage } from './contextual-message.js';
 
 const semesterLabel = (s) => getSemesterParity(s) === 'first' ? 'Mar–Jul' : 'Ago–Dic';
 
@@ -71,9 +72,10 @@ function estimateGraduationDate(maxPlanSem, currentSem) {
  * @returns {string}
  */
 export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, recommended, plan, postponed, currentSem, strategy }) {
-  const name = getUserName();
+  const name   = getUserName();
+  const ctxMsg = getContextualAcademicMessage({ name, preferredPace: strategy, approved, failed, notTaken, plan, currentSem });
 
-  if (!currentSem) return buildProgressSection(name, approved, studying);
+  if (!currentSem) return buildProgressSection(name, approved, studying) + buildContextualMessageCard(ctxMsg);
 
   const nextSem        = currentSem + 1;
   const approvedSCT    = COURSES.filter(c => approved.has(c.id)).reduce((sum, c) => sum + c.credits, 0);
@@ -86,6 +88,7 @@ export function buildPanelHTML({ approved, studying, failed, notTaken, blocked, 
 
   return [
     buildProgressSection(name, approved, studying),
+    buildContextualMessageCard(ctxMsg),
     buildRecommendedSection(recommendedArr, recommendedSCT, nextSem, strategy),
     buildStrategySection(strategy),
     buildPaceAdvice(strategy),
@@ -142,6 +145,15 @@ function buildProgressSection(name, approved, studying) {
         <span><strong>Próximo hito:</strong> ${milestone.text}</span>
       </div>
       <p class="route-motivation">${motivation}</p>
+    </div>`;
+}
+
+function buildContextualMessageCard(msg) {
+  if (!msg) return '';
+  return `
+    <div class="contextual-msg contextual-msg--${msg.type}">
+      <div class="contextual-msg-title">${msg.title}</div>
+      <p class="contextual-msg-text">${msg.message}</p>
     </div>`;
 }
 

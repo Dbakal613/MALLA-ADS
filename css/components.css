@@ -988,3 +988,35 @@
 .proj-pace-btn span { display: block; font-size: 10px; font-weight: 400; color: var(--text-2); margin-top: 1px; }
 .proj-pace-btn:hover { border-color: var(--blue); background: var(--blue-bg); }
 .proj-pace-btn--selected { border-color: var(--blue); background: var(--blue-bg); box-shadow: 0 0 0 3px rgba(79,70,229,.08); }
+
+/* ── Contextual academic message card ── */
+.contextual-msg {
+  border-radius: 10px;
+  padding: 11px 13px;
+  border-left: 3px solid;
+}
+.contextual-msg--positive { background: #F0FDF4; border-color: #4ADE80; }
+.contextual-msg--warning  { background: #FFFBEB; border-color: #FBBF24; }
+.contextual-msg--support  { background: #EEF2FF; border-color: #818CF8; }
+.contextual-msg--info     { background: var(--surface-2); border-color: var(--border-2); }
+
+.contextual-msg-title {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: .01em;
+}
+.contextual-msg--positive .contextual-msg-title { color: #166534; }
+.contextual-msg--warning  .contextual-msg-title { color: #92400E; }
+.contextual-msg--support  .contextual-msg-title { color: #3730A3; }
+.contextual-msg--info     .contextual-msg-title { color: var(--text); }
+
+.contextual-msg-text {
+  font-size: 10.5px;
+  line-height: 1.6;
+  margin: 0;
+}
+.contextual-msg--positive .contextual-msg-text { color: #166534; }
+.contextual-msg--warning  .contextual-msg-text { color: #92400E; }
+.contextual-msg--support  .contextual-msg-text { color: #4338CA; }
+.contextual-msg--info     .contextual-msg-text { color: var(--text-2); }
