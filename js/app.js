@@ -24,6 +24,7 @@ import { showToast } from './toast.js';
 import { initOnboarding, closeOnboarding, getUserName, getUserPace, saveUser, clearUserData } from './onboarding.js';
 import { updateStudentProfile, getStudentProfile, clearStudentProfile } from './student-profile.js';
 import { initScheduleView, destroyScheduleView } from './schedule-view.js';
+import { startTour, shouldShowInitialTour, shouldShowProjectionTour, resetAllTours } from './tour.js';
 
 // ── Module-level state snapshots ─────────────────────────────────────────────
 // Kept here so action handlers can reference the last-rendered values without
@@ -314,6 +315,9 @@ function handleClick(event) {
       document.getElementById('onboarding-modal').classList.remove('modal-overlay--open');
       updateProjectionCTA();
       render();
+      if (shouldShowInitialTour()) {
+        setTimeout(() => startTour('initial'), 350);
+      }
       break;
     }
 
@@ -371,6 +375,9 @@ function handleClick(event) {
       updateTopbarBadge();
       render();
       showToast(`¡Proyección lista, ${projProfile.name}! Tu ruta está configurada.`, 'success');
+      if (shouldShowProjectionTour()) {
+        setTimeout(() => startTour('projection'), 400);
+      }
       break;
     }
 
@@ -400,6 +407,12 @@ function handleClick(event) {
 
     case 'show-onboarding-again':
       localStorage.removeItem('malla-onboarding-v1');
+      break;
+
+    case 'restart-tour':
+      document.getElementById('onboarding-modal').classList.remove('modal-overlay--open');
+      resetAllTours();
+      setTimeout(() => startTour('initial'), 200);
       break;
 
     case 'apply-config':

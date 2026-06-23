@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/schedule.css">
+  <link rel="stylesheet" href="css/tour.css">
 </head>
 <body>
 
@@ -21,7 +22,7 @@
         <path d="M3 4a1 1 0 011-1h12v2H3V4zm0 5h14v2H3V9zm0 5h14v2H3v-2z"/>
       </svg>
     </div>
-    <div class="topbar-title">
+    <div class="topbar-title" data-tour="app-header">
       Malla Curricular <span>— Administración de Servicios</span>
     </div>
     <span id="topbar-user-greeting" class="topbar-user-greeting" style="display:none" data-action="change-name"></span>
@@ -31,8 +32,8 @@
     <button class="btn" data-action="open-onboarding">? Instructivo</button>
     <button class="btn" data-action="download-projection">↓ Descargar proyección</button>
     <button class="btn" data-action="activate-whatif">⚗ Probar una ruta</button>
-    <button class="btn" id="free-drag-btn" data-action="activate-free-drag" style="display:none">↔ Modo libre</button>
-    <button class="btn" id="schedule-toggle-btn" data-action="toggle-schedule-view">📅 Ver horario</button>
+    <button class="btn" id="free-drag-btn" data-action="activate-free-drag" data-tour="free-mode-btn" style="display:none">↔ Modo libre</button>
+    <button class="btn" id="schedule-toggle-btn" data-action="toggle-schedule-view" data-tour="back-to-malla-btn">📅 Ver horario</button>
     <span class="topbar-sep"></span>
     <button class="btn btn--danger" data-action="reset-all">↩ Reiniciar todo</button>
   </div>
@@ -74,7 +75,7 @@
         <strong>¿Listo para proyectar tu ruta?</strong>
         <span>Dínos en qué semestre estás y cómo quieres avanzar — te mostraremos el camino más claro.</span>
       </div>
-      <button class="btn btn--primary" data-action="open-projection-setup">🗺 Proyectar mi ruta →</button>
+      <button class="btn btn--primary" data-action="open-projection-setup" data-tour="project-route-btn">🗺 Proyectar mi ruta →</button>
     </div>
   </div>
 
@@ -87,7 +88,7 @@
     </div>
 
     <!-- Side panel -->
-    <div class="side-panel">
+    <div class="side-panel" data-tour="side-panel">
       <div class="side-panel-header">
         <h3>Tu ruta académica</h3>
         <p>Planifica tu camino, avanza con claridad.</p>
@@ -240,7 +241,8 @@
 
     </div>
 
-    <div style="margin-top:24px;display:flex;justify-content:flex-end">
+    <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <button class="tour-restart-btn" data-action="restart-tour">↺ Ver guía paso a paso</button>
       <button class="btn btn--primary" data-action="start-app" style="padding:10px 28px;font-size:13px">Iniciar →</button>
     </div>
   </div>
@@ -343,6 +345,10 @@
     </div>
   </div>
 </div>
+
+<!-- ── Guided tour DOM ───────────────────────────────────────────────────────── -->
+<div id="tour-highlight"></div>
+<div id="tour-tooltip"></div>
 
 <script>
   window.addEventListener('error', e => {

@@ -73,7 +73,7 @@ function buildStatusChips(status, isBlocked, isPlannedBlocked, isRecommended, is
   return chips.join('');
 }
 
-function buildCourseCard({ course, status, isBlocked, isPlannedBlocked, isRecommended, isPostponed, approved }) {
+function buildCourseCard({ course, status, isBlocked, isPlannedBlocked, isRecommended, isPostponed, approved, tourAttr = '' }) {
   const cardClass = courseCardClass(course, status, isBlocked, isPlannedBlocked, isRecommended, isPostponed);
   const dotClass  = statusDotClass(status, isRecommended);
   const chips     = buildStatusChips(status, isBlocked, isPlannedBlocked, isRecommended, isPostponed);
@@ -87,7 +87,8 @@ function buildCourseCard({ course, status, isBlocked, isPlannedBlocked, isRecomm
          style="${planStyle}"
          ${isDraggable ? 'draggable="true"' : ''}
          data-course-id="${course.id}"
-         data-action="open-context-menu">
+         data-action="open-context-menu"
+         ${tourAttr}>
       ${dotClass ? `<div class="${dotClass}"></div>` : ''}
       <div class="course-name">${course.name}</div>
       <div class="course-meta">
@@ -97,7 +98,7 @@ function buildCourseCard({ course, status, isBlocked, isPlannedBlocked, isRecomm
     </div>`;
 }
 
-function buildProjectedCard({ course, status, semNumber }) {
+function buildProjectedCard({ course, status, semNumber, tourAttr = '' }) {
   const isRepeatOrMissed = status === 'reprobado' || status === 'no-tomado';
 
   const chipLabel = isRepeatOrMissed
@@ -122,7 +123,8 @@ function buildProjectedCard({ course, status, semNumber }) {
          draggable="true"
          data-course-id="${course.id}"
          data-projected-from-sem="${semNumber}"
-         data-action="open-context-menu">
+         data-action="open-context-menu"
+         ${tourAttr}>
       <div class="course-name" style="color:${nameColor}">${course.name}</div>
       <div class="course-meta">
         <span class="course-credits">${course.credits} SCT</span>
@@ -175,6 +177,8 @@ export function buildGridHTML({ approved, failed, notTaken, blocked, recommended
   );
 
   let html = '';
+  let _firstCourseTagged    = false;
+  let _firstProjectedTagged = false;
 
   for (let s = 1; s <= maxSem; s++) {
     const ids   = semMap[s] ?? [];
@@ -233,7 +237,7 @@ export function buildGridHTML({ approved, failed, notTaken, blocked, recommended
       : `<div class="credits-label">${totalCredits}/${effectiveCap} SCT${hasProjection ? ' · plan' : ''}</div>`;
 
     html += `
-      <div class="${colClasses}" id="sem-${s}" data-sem="${s}">
+      <div class="${colClasses}" id="sem-${s}" data-sem="${s}" ${s === 1 ? 'data-tour="semester-1"' : ''}>
         <div class="sem-header">
           <div class="sem-header-top">
             <span class="sem-number">Semestre ${s}</span>
@@ -284,12 +288,16 @@ export function buildGridHTML({ approved, failed, notTaken, blocked, recommended
         // Plan courses (blocked or not) → always show as projected (blue dashed).
         // A blocked course is assumed to be unblocked by the time its semester arrives.
         if ((pIds.includes(id) || overrides[id]) && !isPostponed) {
-          html += buildProjectedCard({ course, status, semNumber: s });
+          const tourAttr = !_firstProjectedTagged ? 'data-tour="projected-card"' : '';
+          if (!_firstProjectedTagged) _firstProjectedTagged = true;
+          html += buildProjectedCard({ course, status, semNumber: s, tourAttr });
           return;
         }
       }
 
-      html += buildCourseCard({ course, status, isBlocked, isPlannedBlocked, isRecommended, isPostponed, approved });
+      const tourAttr = (!_firstCourseTagged && s === 1) ? 'data-tour="first-course-card"' : '';
+      if (!_firstCourseTagged && s === 1) _firstCourseTagged = true;
+      html += buildCourseCard({ course, status, isBlocked, isPlannedBlocked, isRecommended, isPostponed, approved, tourAttr });
     });
 
     // Non-native plan courses (plan put them here, default semester is elsewhere).

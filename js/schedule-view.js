@@ -3,6 +3,7 @@ import { COURSES, OPTATIVO_IDS } from './data.js';
 import { safeCalculatePlan, getBlocked } from './planner.js';
 import { getStrategy, getCurrentSemesterNumber } from './state.js';
 import { showToast } from './toast.js';
+import { startTour, shouldShowScheduleTour } from './tour.js';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -170,7 +171,7 @@ function _truncate(str, n) {
 
 function _buildGrid() {
   const conflictKeys = _conflictingKeys();
-  let html = '<div class="sv-grid">';
+  let html = '<div class="sv-grid" data-tour="schedule-grid">';
 
   // Row 1: corner + day headers
   html += `<div class="sg-corner" style="grid-column:1;grid-row:1"></div>`;
@@ -326,7 +327,7 @@ function _buildPanel() {
   }
 
   // Suggest button
-  html += `<button class="sv-suggest-btn" data-sv-action="sv-suggest">✦ Sugerir horario sin topes</button>`;
+  html += `<button class="sv-suggest-btn" data-sv-action="sv-suggest" data-tour="sv-suggest-btn">✦ Sugerir horario sin topes</button>`;
 
   // Clear all
   if (_selected.length > 0) {
@@ -378,7 +379,7 @@ export function renderScheduleView() {
   container.innerHTML = `
     <div class="sv-layout">
       <div class="sv-grid-wrapper">${_buildGrid()}</div>
-      <div class="sv-panel">
+      <div class="sv-panel" data-tour="sv-panel">
         <div class="sv-panel-header">
           <h3>Arma tu horario</h3>
           <p>2° Semestre 2026 — Administración de Servicios</p>
@@ -508,6 +509,9 @@ export function initScheduleView() {
     _listenerAttached = true;
   }
   renderScheduleView();
+  if (shouldShowScheduleTour()) {
+    setTimeout(() => startTour('schedule'), 400);
+  }
 }
 
 export function destroyScheduleView() {
